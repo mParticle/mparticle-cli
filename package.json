@@ -1,0 +1,78 @@
+{
+  "name": "@mparticle/cli",
+  "description": "mParticle Command Line Interface",
+  "version": "1.0.0-alpha.0",
+  "author": "Alexander Sapountzis @alexs-mparticle",
+  "bin": {
+    "mp": "./bin/run"
+  },
+  "bugs": "https://github.com/mParticle/mparticle-cli/issues",
+  "dependencies": {
+    "@mparticle/data-planning-models": "0.0.2-alpha.1",
+    "@mparticle/data-planning-node": "0.0.1",
+    "@mparticle/event-models": "^1.0.2",
+    "@oclif/command": "^1.5.19",
+    "@oclif/config": "^1.13.3",
+    "@oclif/errors": "^1.2.2",
+    "@oclif/plugin-help": "^2.2.3",
+    "axios": "^0.19.1",
+    "cli-ux": "^5.4.1",
+    "deepmerge": "^4.2.2",
+    "tslib": "^1.10.0"
+  },
+  "devDependencies": {
+    "@oclif/dev-cli": "^1.22.2",
+    "@oclif/test": "^1.2.5",
+    "@types/chai": "^4.2.7",
+    "@types/mocha": "^5.2.7",
+    "@types/node": "^10.17.13",
+    "chai": "^4.2.0",
+    "globby": "^10.0.2",
+    "mocha": "^7.0.0",
+    "nock": "^11.7.2",
+    "nyc": "^15.0.0",
+    "pre-commit": "^1.2.2",
+    "ts-node": "^8.5.4",
+    "typescript": "^3.7.4"
+  },
+  "pre-commit": [
+    "test"
+  ],
+  "engines": {
+    "node": ">=8.0.0"
+  },
+  "files": [
+    "/bin",
+    "/lib",
+    "/npm-shrinkwrap.json",
+    "/oclif.manifest.json"
+  ],
+  "homepage": "https://github.com/mParticle/mparticle-cli",
+  "keywords": [
+    "oclif"
+  ],
+  "license": "Apache-2.0",
+  "main": "lib/index.js",
+  "oclif": {
+    "commands": "./lib/commands",
+    "topics": {
+      "planning": {
+        "description": "Manages Data Planning"
+      }
+    },
+    "bin": "mp",
+    "plugins": [
+      "@oclif/plugin-help"
+    ]
+  },
+  "repository": "mParticle/mparticle-cli",
+  "scripts": {
+    "postpack": "rm -f oclif.manifest.json",
+    "prepack": "rm -rf lib && tsc -b && oclif-dev manifest && oclif-dev readme",
+    "test": "nyc --extension .ts mocha --forbid-only \"test/**/*.test.ts\"",
+    "test:mocha": "mocha --no-opts -r ts-node/register --watch-extensions ts test/**/*.test.ts --reporter nyan",
+    "test:watch": "mocha --no-opts -r ts-node/register --watch-extensions ts --watch test/**/*.test.ts --reporter nyan",
+    "version": "oclif-dev readme && git add README.md"
+  },
+  "types": "lib/index.d.ts"
+}
