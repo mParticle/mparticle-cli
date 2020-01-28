@@ -39,7 +39,7 @@ $ npm install -g @mparticle/cli
 $ mp COMMAND
 running command...
 $ mp (-v|--version|version)
-@mparticle/cli/1.0.0-alpha.0 darwin-x64 node-v10.15.3
+@mparticle/cli/1.0.1-alpha.0 darwin-x64 node-v10.15.3
 $ mp --help [COMMAND]
 USAGE
   $ mp COMMAND
@@ -111,7 +111,7 @@ EXAMPLES
   $ mp planning:batches:validate --batchFile=/path/to/batch --dataPlanVersion=/path/to/dataplanversion
 ```
 
-_See code: [src/commands/planning/batches/validate.ts](https://github.com/mParticle/mparticle-cli/blob/v1.0.0-alpha.0/src/commands/planning/batches/validate.ts)_
+_See code: [src/commands/planning/batches/validate.ts](https://github.com/mParticle/mparticle-cli/blob/v1.0.1-alpha.0/src/commands/planning/batches/validate.ts)_
 
 ## `mp planning:data-plan-versions:fetch`
 
@@ -146,7 +146,7 @@ EXAMPLE
   --accountId=[ACCOUNT_ID] --workspaceId=[WORKSPACE_ID]
 ```
 
-_See code: [src/commands/planning/data-plan-versions/fetch.ts](https://github.com/mParticle/mparticle-cli/blob/v1.0.0-alpha.0/src/commands/planning/data-plan-versions/fetch.ts)_
+_See code: [src/commands/planning/data-plan-versions/fetch.ts](https://github.com/mParticle/mparticle-cli/blob/v1.0.1-alpha.0/src/commands/planning/data-plan-versions/fetch.ts)_
 
 ## `mp planning:data-plans:fetch`
 
@@ -180,7 +180,7 @@ EXAMPLE
   --workspaceId=[WORKSPACE_ID]
 ```
 
-_See code: [src/commands/planning/data-plans/fetch.ts](https://github.com/mParticle/mparticle-cli/blob/v1.0.0-alpha.0/src/commands/planning/data-plans/fetch.ts)_
+_See code: [src/commands/planning/data-plans/fetch.ts](https://github.com/mParticle/mparticle-cli/blob/v1.0.1-alpha.0/src/commands/planning/data-plans/fetch.ts)_
 
 ## `mp planning:events:validate`
 
@@ -199,6 +199,7 @@ OPTIONS
   --event=event                              Event as Stringified JSON
   --eventFile=eventFile                      Path to saved JSON file of an Event
   --logLevel=error|warn|info|debug|silent    [default: info] Log Level
+  --translateEvents                          Translate minified event into standard event
   --versionNumber=versionNumber              Data Plan Version Number
 
 DESCRIPTION
@@ -206,7 +207,6 @@ DESCRIPTION
   
   A Data Plan Version can be directly referenced by using either the --dataPlanVersion or --dataPlanVersionFile flags
   Otherwise, a --dataPlan or --dataPlanFile must be accompanied by a --versionNumber.
-
   For more information, visit: https://github.com/mParticle/mparticle-cli
 
 ALIASES
@@ -215,10 +215,13 @@ ALIASES
 EXAMPLES
   $ mp planning:events:validate --event=[EVENT] --dataPlan=[DATA_PLAN] --versionNumber=[VERSION_NUMBER]
   $ mp planning:events:validate --event=[EVENT] --dataPlanVersion=[DATA_PLAN_VERSION]
+  $ mp planning:events:validate --event=[EVENT] --dataPlanVersion=[DATA_PLAN_VERSION] --translateEvents
   $ mp planning:events:validate --eventFile=/path/to/event --dataPlanFile=/path/to/dataplan 
   --versionNumber=[VERSION_NUMBER]
-  $ mp planning:events:validate --eventFile=/path/to/event --dataPlanVersionFile=/path/to/dataplanversion
+  $ mp planning:events:validate --eventFile=/path/to/event --dataPlanVersionFile=/path/to/dataplanversio
+  $ mp planning:events:validate --eventFile=/path/to/event --dataPlanVersionFile=/path/to/dataplanversio 
+  --translateEvents
 ```
 
-_See code: [src/commands/planning/events/validate.ts](https://github.com/mParticle/mparticle-cli/blob/v1.0.0-alpha.0/src/commands/planning/events/validate.ts)_
+_See code: [src/commands/planning/events/validate.ts](https://github.com/mParticle/mparticle-cli/blob/v1.0.1-alpha.0/src/commands/planning/events/validate.ts)_
 <!-- commandsstop -->
