@@ -5,3 +5,4 @@ mp.config.json
 .nyc_output/
 .vscode/
 coverage/
+lib/

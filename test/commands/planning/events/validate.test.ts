@@ -9,6 +9,12 @@ const sampleEvent = {
   }
 };
 
+const minifiedEvent = {
+  dt: 'e',
+  n: 'Test Event',
+  et: 'other'
+};
+
 const expectedResults = {
   results: [
     {
@@ -40,8 +46,7 @@ describe('planning:events:validate', () => {
       'planning:events:validate',
       '--event=' + JSON.stringify(sampleEvent),
       '--dataPlan=' + JSON.stringify(sampleDataPlan),
-      '--versionNumber=1',
-      '--logLevel=debug'
+      '--versionNumber=1'
     ])
     .it('validates an event with a Data Plan and Version Number', ctx => {
       expect(ctx.stdout.trim()).to.equals(
@@ -57,6 +62,20 @@ describe('planning:events:validate', () => {
       '--dataPlanVersion=' + JSON.stringify(sampleVersion)
     ])
     .it('validates an event with a Data Plan Version', ctx => {
+      expect(ctx.stdout.trim()).to.equals(
+        JSON.stringify(expectedResults, null, 4).trim()
+      );
+    });
+
+  test
+    .stdout()
+    .command([
+      'planning:events:validate',
+      '--event=' + JSON.stringify(minifiedEvent),
+      '--dataPlanVersion=' + JSON.stringify(sampleVersion),
+      '--translateEvents'
+    ])
+    .it('validates a minified event', ctx => {
       expect(ctx.stdout.trim()).to.equals(
         JSON.stringify(expectedResults, null, 4).trim()
       );

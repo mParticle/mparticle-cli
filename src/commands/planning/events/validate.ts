@@ -5,6 +5,7 @@ import { JSONFileSync } from '../../../utils/JSONFileSync';
 import { cli } from 'cli-ux';
 import { BaseEvent } from '@mparticle/event-models';
 import { DataPlan, DataPlanVersion } from '@mparticle/data-planning-models';
+import { expand } from '@mparticle/model-translation';
 
 const pjson = require('../../../../package.json');
 
@@ -15,9 +16,7 @@ Data Plans are comprised of one or more Data Plan Versions and are used to valid
   
 A Data Plan Version can be directly referenced by using either the --dataPlanVersion or --dataPlanVersionFile flags
 Otherwise, a --dataPlan or --dataPlanFile must be accompanied by a --versionNumber.
-
 For more information, visit: ${pjson.homepage}
-
 `;
 
   static aliases = ['plan:e:val'];
@@ -25,8 +24,10 @@ For more information, visit: ${pjson.homepage}
   static examples = [
     `$ mp planning:events:validate --event=[EVENT] --dataPlan=[DATA_PLAN] --versionNumber=[VERSION_NUMBER]`,
     `$ mp planning:events:validate --event=[EVENT] --dataPlanVersion=[DATA_PLAN_VERSION]`,
+    `$ mp planning:events:validate --event=[EVENT] --dataPlanVersion=[DATA_PLAN_VERSION] --translateEvents`,
     `$ mp planning:events:validate --eventFile=/path/to/event --dataPlanFile=/path/to/dataplan --versionNumber=[VERSION_NUMBER]`,
-    `$ mp planning:events:validate --eventFile=/path/to/event --dataPlanVersionFile=/path/to/dataplanversion`
+    `$ mp planning:events:validate --eventFile=/path/to/event --dataPlanVersionFile=/path/to/dataplanversio`,
+    `$ mp planning:events:validate --eventFile=/path/to/event --dataPlanVersionFile=/path/to/dataplanversio --translateEvents`
   ];
 
   static flags = {
@@ -61,6 +62,10 @@ For more information, visit: ${pjson.homepage}
     }),
     dataPlanVersionFile: flags.string({
       description: 'Path to saved JSON file of a Data Plan Version'
+    }),
+
+    translateEvents: flags.boolean({
+      description: 'Translate minified event into standard event'
     })
   };
 
@@ -93,7 +98,8 @@ For more information, visit: ${pjson.homepage}
       eventFile,
       dataPlanFile,
       dataPlanVersionFile,
-      versionNumber
+      versionNumber,
+      translateEvents
     } = flags;
 
     const eventStr = flags.event;
@@ -115,7 +121,25 @@ For more information, visit: ${pjson.homepage}
       );
     }
 
-    const event = this.getObject<BaseEvent>('event', eventStr, eventFile);
+    const initialEvent = this.getObject<BaseEvent>(
+      'event',
+      eventStr,
+      eventFile
+    );
+    let event;
+
+    if (initialEvent && translateEvents) {
+      if (logLevel === 'debug') {
+        console.log('Event Before Expansion', initialEvent);
+      }
+      event = expand(initialEvent) as BaseEvent;
+    } else {
+      event = initialEvent;
+    }
+
+    if (logLevel === 'debug') {
+      console.log('Event Received', event);
+    }
 
     if (!event) {
       this.error('Event is invalid');
@@ -142,6 +166,10 @@ For more information, visit: ${pjson.homepage}
         (dataPlanVersion: DataPlanVersion) =>
           dataPlanVersion.version === versionNumber
       )?.version_document;
+    }
+
+    if (logLevel === 'debug') {
+      console.log('Data Plan Version received', event);
     }
 
     if (!document) {
