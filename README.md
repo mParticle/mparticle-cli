@@ -39,7 +39,7 @@ $ npm install -g @mparticle/cli
 $ mp COMMAND
 running command...
 $ mp (-v|--version|version)
-@mparticle/cli/1.0.1-alpha.0 darwin-x64 node-v10.15.3
+@mparticle/cli/1.0.1-alpha.1 darwin-x64 node-v10.15.3
 $ mp --help [COMMAND]
 USAGE
   $ mp COMMAND
@@ -111,7 +111,7 @@ EXAMPLES
   $ mp planning:batches:validate --batchFile=/path/to/batch --dataPlanVersion=/path/to/dataplanversion
 ```
 
-_See code: [src/commands/planning/batches/validate.ts](https://github.com/mParticle/mparticle-cli/blob/v1.0.1-alpha.0/src/commands/planning/batches/validate.ts)_
+_See code: [src/commands/planning/batches/validate.ts](https://github.com/mParticle/mparticle-cli/blob/v1.0.1-alpha.1/src/commands/planning/batches/validate.ts)_
 
 ## `mp planning:data-plan-versions:fetch`
 
@@ -146,7 +146,7 @@ EXAMPLE
   --accountId=[ACCOUNT_ID] --workspaceId=[WORKSPACE_ID]
 ```
 
-_See code: [src/commands/planning/data-plan-versions/fetch.ts](https://github.com/mParticle/mparticle-cli/blob/v1.0.1-alpha.0/src/commands/planning/data-plan-versions/fetch.ts)_
+_See code: [src/commands/planning/data-plan-versions/fetch.ts](https://github.com/mParticle/mparticle-cli/blob/v1.0.1-alpha.1/src/commands/planning/data-plan-versions/fetch.ts)_
 
 ## `mp planning:data-plans:fetch`
 
@@ -180,7 +180,7 @@ EXAMPLE
   --workspaceId=[WORKSPACE_ID]
 ```
 
-_See code: [src/commands/planning/data-plans/fetch.ts](https://github.com/mParticle/mparticle-cli/blob/v1.0.1-alpha.0/src/commands/planning/data-plans/fetch.ts)_
+_See code: [src/commands/planning/data-plans/fetch.ts](https://github.com/mParticle/mparticle-cli/blob/v1.0.1-alpha.1/src/commands/planning/data-plans/fetch.ts)_
 
 ## `mp planning:events:validate`
 
@@ -223,5 +223,5 @@ EXAMPLES
   --translateEvents
 ```
 
-_See code: [src/commands/planning/events/validate.ts](https://github.com/mParticle/mparticle-cli/blob/v1.0.1-alpha.0/src/commands/planning/events/validate.ts)_
+_See code: [src/commands/planning/events/validate.ts](https://github.com/mParticle/mparticle-cli/blob/v1.0.1-alpha.1/src/commands/planning/events/validate.ts)_
 <!-- commandsstop -->
