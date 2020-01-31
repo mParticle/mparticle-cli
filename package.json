@@ -11,7 +11,7 @@
     "@mparticle/data-planning-models": "0.0.2-alpha.1",
     "@mparticle/data-planning-node": "0.0.1",
     "@mparticle/event-models": "^1.0.2",
-    "@mparticle/model-translation": "0.0.1-alpha.1",
+    "@mparticle/model-translation": "0.0.2-alpha.0",
     "@oclif/command": "^1.5.19",
     "@oclif/config": "^1.13.3",
     "@oclif/errors": "^1.2.2",
