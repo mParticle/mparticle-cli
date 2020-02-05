@@ -6,6 +6,7 @@ mParticle Command Line Interface
 
 [![oclif](https://img.shields.io/badge/cli-oclif-brightgreen.svg)](https://oclif.io)
 [![Version](https://img.shields.io/npm/v/mp.svg)](https://npmjs.org/package/mp)
+[![Build Status](https://travis-ci.com/mParticle/mparticle-cli.svg?branch=master)](https://travis-ci.com/mParticle/mparticle-cli)
 
 <!-- toc -->
 * [mParticle CLI](#mparticle-cli)
@@ -39,7 +40,7 @@ $ npm install -g @mparticle/cli
 $ mp COMMAND
 running command...
 $ mp (-v|--version|version)
-@mparticle/cli/1.0.1-alpha.1 darwin-x64 node-v10.15.3
+@mparticle/cli/1.0.2 darwin-x64 node-v10.15.3
 $ mp --help [COMMAND]
 USAGE
   $ mp COMMAND
@@ -111,7 +112,7 @@ EXAMPLES
   $ mp planning:batches:validate --batchFile=/path/to/batch --dataPlanVersion=/path/to/dataplanversion
 ```
 
-_See code: [src/commands/planning/batches/validate.ts](https://github.com/mParticle/mparticle-cli/blob/v1.0.1-alpha.1/src/commands/planning/batches/validate.ts)_
+_See code: [src/commands/planning/batches/validate.ts](https://github.com/mParticle/mparticle-cli/blob/v1.0.2/src/commands/planning/batches/validate.ts)_
 
 ## `mp planning:data-plan-versions:fetch`
 
@@ -123,13 +124,15 @@ USAGE
 
 OPTIONS
   -o, --outFile=outFile                    (optional) Output file for results (defaults to standard output)
-  --accountId=accountId                    (required) mParticle Account ID
-  --dataPlanId=dataPlanId                  (required) Data Plan ID
+  --accountId=accountId                    mParticle Account ID
+  --clientId=clientId                      Client ID for Platform API
+  --clientSecret=clientSecret              Client Secret for Platform API
+  --config=config                          mParticle Config JSON File
+  --dataPlanId=dataPlanId                  Data Plan ID
   --logLevel=error|warn|info|debug|silent  [default: info] Log Level
-  --orgId=orgId                            (required) mParticle Organization ID
-  --token=token                            (required) mParticle Token
-  --versionNumber=versionNumber            (required) Data Plan Version Number
-  --workspaceId=workspaceId                (required) mParticle Workspace ID
+  --orgId=orgId                            mParticle Organization ID
+  --versionNumber=versionNumber            Data Plan Version Number
+  --workspaceId=workspaceId                mParticle Workspace ID
 
 DESCRIPTION
   Data Plan Versions are a subset of Data Plans and are used to validate batches.
@@ -146,7 +149,7 @@ EXAMPLE
   --accountId=[ACCOUNT_ID] --workspaceId=[WORKSPACE_ID]
 ```
 
-_See code: [src/commands/planning/data-plan-versions/fetch.ts](https://github.com/mParticle/mparticle-cli/blob/v1.0.1-alpha.1/src/commands/planning/data-plan-versions/fetch.ts)_
+_See code: [src/commands/planning/data-plan-versions/fetch.ts](https://github.com/mParticle/mparticle-cli/blob/v1.0.2/src/commands/planning/data-plan-versions/fetch.ts)_
 
 ## `mp planning:data-plans:fetch`
 
@@ -158,12 +161,14 @@ USAGE
 
 OPTIONS
   -o, --outFile=outFile                    (optional) Output file for results (defaults to standard output)
-  --accountId=accountId                    (required) mParticle Account ID
-  --dataPlanId=dataPlanId                  (required) Data Plan ID
+  --accountId=accountId                    mParticle Account ID
+  --clientId=clientId                      Client ID for Platform API
+  --clientSecret=clientSecret              Client Secret for Platform API
+  --config=config                          mParticle Config JSON File
+  --dataPlanId=dataPlanId                  Data Plan ID
   --logLevel=error|warn|info|debug|silent  [default: info] Log Level
-  --orgId=orgId                            (required) mParticle Organization ID
-  --token=token                            (required) mParticle Token
-  --workspaceId=workspaceId                (required) mParticle Workspace ID
+  --orgId=orgId                            mParticle Organization ID
+  --workspaceId=workspaceId                mParticle Workspace ID
 
 DESCRIPTION
   Data Plans are comprised of one or more Data Plan Versions.
@@ -180,7 +185,7 @@ EXAMPLE
   --workspaceId=[WORKSPACE_ID]
 ```
 
-_See code: [src/commands/planning/data-plans/fetch.ts](https://github.com/mParticle/mparticle-cli/blob/v1.0.1-alpha.1/src/commands/planning/data-plans/fetch.ts)_
+_See code: [src/commands/planning/data-plans/fetch.ts](https://github.com/mParticle/mparticle-cli/blob/v1.0.2/src/commands/planning/data-plans/fetch.ts)_
 
 ## `mp planning:events:validate`
 
@@ -223,5 +228,5 @@ EXAMPLES
   --translateEvents
 ```
 
-_See code: [src/commands/planning/events/validate.ts](https://github.com/mParticle/mparticle-cli/blob/v1.0.1-alpha.1/src/commands/planning/events/validate.ts)_
+_See code: [src/commands/planning/events/validate.ts](https://github.com/mParticle/mparticle-cli/blob/v1.0.2/src/commands/planning/events/validate.ts)_
 <!-- commandsstop -->

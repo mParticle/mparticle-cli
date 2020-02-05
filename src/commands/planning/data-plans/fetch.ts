@@ -27,36 +27,69 @@ For more information, visit: ${pjson.homepage}
     ...Base.flags,
 
     accountId: flags.integer({
-      description: 'mParticle Account ID',
-      required: true
+      description: 'mParticle Account ID'
     }),
     orgId: flags.integer({
-      description: 'mParticle Organization ID',
-      required: true
+      description: 'mParticle Organization ID'
     }),
     workspaceId: flags.integer({
-      description: 'mParticle Workspace ID',
-      required: true
-    }),
-
-    token: flags.string({
-      description: 'mParticle Token',
-      required: true
+      description: 'mParticle Workspace ID'
     }),
 
     dataPlanId: flags.string({
-      description: 'Data Plan ID',
-      required: true
+      description: 'Data Plan ID'
+    }),
+
+    clientId: flags.string({
+      description: 'Client ID for Platform API'
+    }),
+    clientSecret: flags.string({
+      description: 'Client Secret for Platform API'
+    }),
+
+    config: flags.string({
+      description: 'mParticle Config JSON File'
     })
   };
 
   async run() {
     const { flags } = this.parse(DataPlanFetch);
-    const { logLevel } = flags;
+    const { outFile, config, logLevel } = flags;
 
-    const { dataPlanId, outFile, token, accountId, orgId, workspaceId } = flags;
+    let configFile;
 
-    const dataPlanService = new DataPlanService();
+    if (config) {
+      const configReader = new JSONFileSync(config);
+      configFile = JSON.parse(configReader.read());
+    }
+
+    let accountId = configFile?.global?.accountId ?? flags.accountId;
+    let orgId = configFile?.global?.orgId ?? flags.orgId;
+    let workspaceId = configFile?.global?.workspaceId ?? flags.workspaceId;
+    let clientId = configFile?.global?.clientId ?? flags.clientId;
+    let clientSecret =
+      configFile?.planningConfig?.clientSecret ?? flags.clientSecret;
+    let dataPlanId = configFile?.planningConfig?.dataPlanId ?? flags.dataPlanId;
+
+    let dataPlanService: DataPlanService;
+    try {
+      dataPlanService = new DataPlanService({
+        orgId,
+        accountId,
+        workspaceId,
+        clientId,
+        clientSecret
+      });
+    } catch (error) {
+      if (logLevel === 'debug') {
+        console.error(error);
+      }
+      this.error(error.message);
+    }
+
+    if (!dataPlanId) {
+      this.error('Missing Data Plan ID');
+    }
 
     let output = {};
 
@@ -65,13 +98,7 @@ For more information, visit: ${pjson.homepage}
     cli.action.start(message);
 
     try {
-      output = await dataPlanService.getPlan(
-        orgId,
-        accountId,
-        dataPlanId,
-        workspaceId,
-        token
-      );
+      output = await dataPlanService.getPlan(dataPlanId);
     } catch (error) {
       if (logLevel === 'debug') {
         console.error('Data Plan Fetch Error', error);

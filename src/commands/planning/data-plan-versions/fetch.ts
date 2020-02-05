@@ -27,48 +27,75 @@ For more information, visit: ${pjson.homepage}
     ...Base.flags,
 
     accountId: flags.integer({
-      description: 'mParticle Account ID',
-      required: true
+      description: 'mParticle Account ID'
     }),
     orgId: flags.integer({
-      description: 'mParticle Organization ID',
-      required: true
+      description: 'mParticle Organization ID'
     }),
     workspaceId: flags.integer({
-      description: 'mParticle Workspace ID',
-      required: true
-    }),
-
-    token: flags.string({
-      description: 'mParticle Token',
-      required: true
+      description: 'mParticle Workspace ID'
     }),
 
     dataPlanId: flags.string({
-      description: 'Data Plan ID',
-      required: true
+      description: 'Data Plan ID'
     }),
     versionNumber: flags.integer({
-      description: 'Data Plan Version Number',
-      required: true
+      description: 'Data Plan Version Number'
+    }),
+
+    clientId: flags.string({
+      description: 'Client ID for Platform API'
+    }),
+
+    clientSecret: flags.string({
+      description: 'Client Secret for Platform API'
+    }),
+
+    config: flags.string({
+      description: 'mParticle Config JSON File'
     })
   };
 
   async run() {
     const { flags } = this.parse(DataPlanVersionFetch);
-    const { logLevel } = flags;
+    const { outFile, config, logLevel } = flags;
 
-    const {
-      dataPlanId,
-      outFile,
-      token,
-      accountId,
-      orgId,
-      workspaceId,
-      versionNumber
-    } = flags;
+    let configFile;
 
-    const dataPlanService = new DataPlanService();
+    if (config) {
+      const configReader = new JSONFileSync(config);
+      configFile = JSON.parse(configReader.read());
+    }
+
+    let accountId = configFile?.global?.accountId ?? flags.accountId;
+    let orgId = configFile?.global?.orgId ?? flags.orgId;
+    let workspaceId = configFile?.global?.workspaceId ?? flags.workspaceId;
+    let clientId = configFile?.global?.clientId ?? flags.clientId;
+    let clientSecret =
+      configFile?.planningConfig?.clientSecret ?? flags.clientSecret;
+    let versionNumber =
+      configFile?.planningConfig?.versionNumber ?? flags.versionNumber;
+    let dataPlanId = configFile?.planningConfig?.dataPlanId ?? flags.dataPlanId;
+
+    let dataPlanService: DataPlanService;
+    try {
+      dataPlanService = new DataPlanService({
+        orgId,
+        accountId,
+        workspaceId,
+        clientId,
+        clientSecret
+      });
+    } catch (error) {
+      if (logLevel === 'debug') {
+        console.error(error);
+      }
+      this.error(error.message);
+    }
+
+    if (!dataPlanId && !versionNumber) {
+      this.error('Missing Data Plan ID and Version Number');
+    }
 
     let output = {};
 
@@ -78,12 +105,8 @@ For more information, visit: ${pjson.homepage}
 
     try {
       output = await dataPlanService.getVersionDocument(
-        orgId,
-        accountId,
         dataPlanId,
-        workspaceId,
-        versionNumber,
-        token
+        versionNumber
       );
     } catch (error) {
       if (logLevel === 'debug') {
