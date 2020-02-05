@@ -6,6 +6,7 @@ mParticle Command Line Interface
 
 [![oclif](https://img.shields.io/badge/cli-oclif-brightgreen.svg)](https://oclif.io)
 [![Version](https://img.shields.io/npm/v/mp.svg)](https://npmjs.org/package/mp)
+[![Build Status](https://travis-ci.com/mParticle/mparticle-cli.svg?branch=master)](https://travis-ci.com/mParticle/mparticle-cli)
 
 <!-- toc -->
 * [mParticle CLI](#mparticle-cli)
