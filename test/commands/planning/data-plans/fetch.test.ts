@@ -1,15 +1,26 @@
 import { expect, test } from '@oclif/test';
 import { JSONFileSync } from '../../../../src/utils/JSONFileSync';
+import nock from 'nock';
+
+// Prevent CLI from hitting the interwebs
+nock.disableNetConnect();
 
 describe('planning:data-plans:fetch', () => {
   const sampleDataPlan = { fake_data_plan: 'this is fake' };
   test
     .nock('https://sso.auth.mparticle.com', api => {
-      api.post('/oauth/token').reply(200, {
-        access_token: 'DAS token',
-        expires_in: 5,
-        token_type: 'Bearer'
-      });
+      api
+        .post('/oauth/token', {
+          client_id: 'client',
+          client_secret: 'secret',
+          audience: 'https://api.mparticle.com',
+          grant_type: 'client_credentials'
+        })
+        .reply(200, {
+          access_token: 'DAS token',
+          expires_in: 5,
+          token_type: 'Bearer'
+        });
     })
     .nock('https://api.mparticle.com', api => {
       api
@@ -33,6 +44,20 @@ describe('planning:data-plans:fetch', () => {
     });
 
   test
+    .nock('https://sso.auth.mparticle.com', api => {
+      api
+        .post('/oauth/token', {
+          client_id: 'client',
+          client_secret: 'secret',
+          audience: 'https://api.mparticle.com',
+          grant_type: 'client_credentials'
+        })
+        .reply(200, {
+          access_token: 'DAS token',
+          expires_in: 5,
+          token_type: 'Bearer'
+        });
+    })
     .nock('https://api.mparticle.com', api => {
       api
         .get('/planning/v1/1234/4567/8900/plans/foo')
@@ -44,8 +69,8 @@ describe('planning:data-plans:fetch', () => {
           orgId: 1234,
           accountId: 4567,
           workspaceId: 8900,
-          clientId: 'foo',
-          clientSecret: 'bar'
+          clientId: 'client',
+          clientSecret: 'secret'
         }
       })
     )
@@ -62,6 +87,20 @@ describe('planning:data-plans:fetch', () => {
     });
 
   test
+    .nock('https://sso.auth.mparticle.com', api => {
+      api
+        .post('/oauth/token', {
+          client_id: 'client',
+          client_secret: 'secret',
+          audience: 'https://api.mparticle.com',
+          grant_type: 'client_credentials'
+        })
+        .reply(200, {
+          access_token: 'DAS token',
+          expires_in: 5,
+          token_type: 'Bearer'
+        });
+    })
     .nock('https://api.mparticle.com', api => {
       api
         .get('/planning/v1/1234/4567/8900/plans/test')
@@ -73,8 +112,8 @@ describe('planning:data-plans:fetch', () => {
           orgId: 1234,
           accountId: 4567,
           workspaceId: 8900,
-          clientId: 'foo',
-          clientSecret: 'bar'
+          clientId: 'client',
+          clientSecret: 'secret'
         },
         planningConfig: {
           dataPlanId: 'test'
@@ -102,8 +141,8 @@ describe('planning:data-plans:fetch', () => {
           orgId: 1234,
           accountId: 4567,
           workspaceId: 8900,
-          clientId: 'foo',
-          clientSecret: 'bar'
+          clientId: 'client',
+          clientSecret: 'secret'
         }
       })
     )

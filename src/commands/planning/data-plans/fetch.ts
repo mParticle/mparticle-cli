@@ -67,8 +67,7 @@ For more information, visit: ${pjson.homepage}
     let orgId = configFile?.global?.orgId ?? flags.orgId;
     let workspaceId = configFile?.global?.workspaceId ?? flags.workspaceId;
     let clientId = configFile?.global?.clientId ?? flags.clientId;
-    let clientSecret =
-      configFile?.planningConfig?.clientSecret ?? flags.clientSecret;
+    let clientSecret = configFile?.global?.clientSecret ?? flags.clientSecret;
     let dataPlanId = configFile?.planningConfig?.dataPlanId ?? flags.dataPlanId;
 
     let dataPlanService: DataPlanService;
