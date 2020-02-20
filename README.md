@@ -9,10 +9,11 @@ mParticle Command Line Interface
 [![Build Status](https://travis-ci.com/mParticle/mparticle-cli.svg?branch=master)](https://travis-ci.com/mParticle/mparticle-cli)
 
 <!-- toc -->
-* [mParticle CLI](#mparticle-cli)
-* [Usage](#usage)
-* [Commands](#commands)
-<!-- tocstop -->
+
+- [mParticle CLI](#mparticle-cli)
+- [Usage](#usage)
+- [Commands](#commands)
+  <!-- tocstop -->
 
 # Usage
 
@@ -30,11 +31,12 @@ Run `npm unlink` in the directory. This will remove the link to `mp`.
 
 Note: Ignore the usage section below. That's for when we get into production)
 
-## Production Usage (NOT SUPPORTED YET)
+## Production Usage
 
 `npm -g install @mparticle/cli`
 
 <!-- usage -->
+
 ```sh-session
 $ npm install -g @mparticle/cli
 $ mp COMMAND
@@ -46,16 +48,18 @@ USAGE
   $ mp COMMAND
 ...
 ```
+
 <!-- usagestop -->
 
 # Commands
 
 <!-- commands -->
-* [`mp help [COMMAND]`](#mp-help-command)
-* [`mp planning:batches:validate`](#mp-planningbatchesvalidate)
-* [`mp planning:data-plan-versions:fetch`](#mp-planningdata-plan-versionsfetch)
-* [`mp planning:data-plans:fetch`](#mp-planningdata-plansfetch)
-* [`mp planning:events:validate`](#mp-planningeventsvalidate)
+
+- [`mp help [COMMAND]`](#mp-help-command)
+- [`mp planning:batches:validate`](#mp-planningbatchesvalidate)
+- [`mp planning:data-plan-versions:fetch`](#mp-planningdata-plan-versionsfetch)
+- [`mp planning:data-plans:fetch`](#mp-planningdata-plansfetch)
+- [`mp planning:events:validate`](#mp-planningeventsvalidate)
 
 ## `mp help [COMMAND]`
 
@@ -95,7 +99,7 @@ OPTIONS
 
 DESCRIPTION
   Data Plans are comprised of one or more Version Documents and are used to validate a Batch.
-  
+
   A Data Plan Version can be directly referenced by using either the --dataPlanVersion or --dataPlanVersionFile flags
   Otherwise, a --dataPlan or --dataPlanFile must be accompanied by a --versionNumber.
 
@@ -107,7 +111,7 @@ ALIASES
 EXAMPLES
   $ mp planning:batches:validate --batch=[BATCH] --dataPlan=[DATA_PLAN] --versionNumber=[VERSION_NUMBER]
   $ mp planning:batches:validate --batch=[BATCH] --dataPlanVersion=[DATA_PLAN_VERSION]
-  $ mp planning:batches:validate --batchFile=/path/to/batch --dataPlanFile=/path/to/dataplan 
+  $ mp planning:batches:validate --batchFile=/path/to/batch --dataPlanFile=/path/to/dataplan
   --versionNumber=[VERSION_NUMBER]
   $ mp planning:batches:validate --batchFile=/path/to/batch --dataPlanVersion=/path/to/dataplanversion
 ```
@@ -136,7 +140,7 @@ OPTIONS
 
 DESCRIPTION
   Data Plan Versions are a subset of Data Plans and are used to validate batches.
-  
+
   A Version Document can be fetched by using your account credentials and a --versionNumber and --dataPlanId.
 
   For more information, visit: https://github.com/mParticle/mparticle-cli
@@ -145,7 +149,7 @@ ALIASES
   $ mp plan:dpv:fetch
 
 EXAMPLE
-  $ mp planning:data-plan-versions:fetch --dataPlanId=[DATA_PLAN_ID] --versionNumber=[VERSION_NUMBER] --orgId=[ORG_ID] 
+  $ mp planning:data-plan-versions:fetch --dataPlanId=[DATA_PLAN_ID] --versionNumber=[VERSION_NUMBER] --orgId=[ORG_ID]
   --accountId=[ACCOUNT_ID] --workspaceId=[WORKSPACE_ID]
 ```
 
@@ -172,7 +176,7 @@ OPTIONS
 
 DESCRIPTION
   Data Plans are comprised of one or more Data Plan Versions.
-  
+
   A Data Plan can be fetched using your account credentials and using a valid --dataPlanId
 
   For more information, visit: https://github.com/mParticle/mparticle-cli
@@ -181,7 +185,7 @@ ALIASES
   $ mp plan:dp:fetch
 
 EXAMPLE
-  $ mp planning:data-plan:fetch --dataPlanId=[DATA_PLAN_ID] --orgId=[ORG_ID] --accountId=[ACCOUNT_ID] 
+  $ mp planning:data-plan:fetch --dataPlanId=[DATA_PLAN_ID] --orgId=[ORG_ID] --accountId=[ACCOUNT_ID]
   --workspaceId=[WORKSPACE_ID]
 ```
 
@@ -209,7 +213,7 @@ OPTIONS
 
 DESCRIPTION
   Data Plans are comprised of one or more Data Plan Versions and are used to validate an Event.
-  
+
   A Data Plan Version can be directly referenced by using either the --dataPlanVersion or --dataPlanVersionFile flags
   Otherwise, a --dataPlan or --dataPlanFile must be accompanied by a --versionNumber.
   For more information, visit: https://github.com/mParticle/mparticle-cli
@@ -221,12 +225,13 @@ EXAMPLES
   $ mp planning:events:validate --event=[EVENT] --dataPlan=[DATA_PLAN] --versionNumber=[VERSION_NUMBER]
   $ mp planning:events:validate --event=[EVENT] --dataPlanVersion=[DATA_PLAN_VERSION]
   $ mp planning:events:validate --event=[EVENT] --dataPlanVersion=[DATA_PLAN_VERSION] --translateEvents
-  $ mp planning:events:validate --eventFile=/path/to/event --dataPlanFile=/path/to/dataplan 
+  $ mp planning:events:validate --eventFile=/path/to/event --dataPlanFile=/path/to/dataplan
   --versionNumber=[VERSION_NUMBER]
   $ mp planning:events:validate --eventFile=/path/to/event --dataPlanVersionFile=/path/to/dataplanversio
-  $ mp planning:events:validate --eventFile=/path/to/event --dataPlanVersionFile=/path/to/dataplanversio 
+  $ mp planning:events:validate --eventFile=/path/to/event --dataPlanVersionFile=/path/to/dataplanversio
   --translateEvents
 ```
 
 _See code: [src/commands/planning/events/validate.ts](https://github.com/mParticle/mparticle-cli/blob/v1.0.3/src/commands/planning/events/validate.ts)_
+
 <!-- commandsstop -->
