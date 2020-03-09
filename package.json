@@ -15,6 +15,7 @@
     "@oclif/command": "^1.5.19",
     "@oclif/config": "^1.13.3",
     "@oclif/errors": "^1.2.2",
+    "@oclif/plugin-autocomplete": "^0.1.5",
     "@oclif/plugin-help": "^2.2.3",
     "axios": "^0.19.1",
     "cli-ux": "^5.4.1",
@@ -63,7 +64,8 @@
     },
     "bin": "mp",
     "plugins": [
-      "@oclif/plugin-help"
+      "@oclif/plugin-help",
+      "@oclif/plugin-autocomplete"
     ]
   },
   "repository": "mParticle/mparticle-cli",
