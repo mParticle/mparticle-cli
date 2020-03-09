@@ -22,6 +22,12 @@ export default abstract class Base extends Command {
 
   static args = [];
 
+  _debugLog(message: string, object?: any) {
+    if (this.flags.logLevel === 'debug') {
+      console.log(message, JSON.stringify(object, null, 4));
+    }
+  }
+
   async init() {
     const { args, flags } = this.parse(<Input<any>>this.constructor);
     this.args = args;

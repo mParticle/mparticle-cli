@@ -2,6 +2,7 @@ import { flags } from '@oclif/command';
 import Base from '../../../base';
 import { DataPlanService } from '@mparticle/data-planning-node';
 import { JSONFileSync } from '../../../utils/JSONFileSync';
+import { getObject } from '../../../utils/getObject';
 import { cli } from 'cli-ux';
 import { Batch } from '@mparticle/event-models';
 import {
@@ -68,27 +69,6 @@ For more information, visit: ${pjson.homepage}
     })
   };
 
-  getObject<T>(
-    name: 'batch' | 'data_plan' | 'version',
-    str?: string,
-    path?: string
-  ): T | undefined {
-    if (str) {
-      try {
-        return JSON.parse(str) as T;
-      } catch (error) {
-        this.error(`Cannot parse ${name} string as JSON`);
-      }
-    } else if (path) {
-      try {
-        const reader = new JSONFileSync(path);
-        return JSON.parse(reader.read()) as T;
-      } catch (error) {
-        this.error(`Cannot read ${name} file`);
-      }
-    }
-  }
-
   getVersionDocument(
     maybeDocument: { [key: string]: any },
     version?: number
@@ -132,23 +112,30 @@ For more information, visit: ${pjson.homepage}
       );
     }
 
-    const batch = this.getObject<Batch>('batch', batchStr, batchFile);
+    let batch;
 
-    if (!batch) {
-      this.error('Batch is invalid');
+    try {
+      batch = getObject<Batch>(batchStr, batchFile);
+    } catch (error) {
+      this._debugLog('Error Fetching Batch Object', error);
+      this.error(error);
     }
 
-    const dataPlan = this.getObject<DataPlan>(
-      'data_plan',
-      dataPlanStr,
-      dataPlanFile
-    );
+    if (!batch) {
+      this._debugLog('Logging Batch object', batch);
+      this.error('Batch is empty or invalid');
+    }
 
-    const dataPlanVersion = this.getObject<DataPlanVersion>(
-      'version',
+    const dataPlan = getObject<DataPlan>(dataPlanStr, dataPlanFile);
+
+    this._debugLog('Data Plan received', dataPlan);
+
+    const dataPlanVersion = getObject<DataPlanVersion>(
       dataPlanVersionStr,
       dataPlanVersionFile
     );
+
+    this._debugLog('Data Plan Version received', dataPlanVersion);
 
     let document;
 
@@ -168,9 +155,7 @@ For more information, visit: ${pjson.homepage}
     try {
       results = dataPlanService.validateBatch(batch, document);
     } catch (error) {
-      if (logLevel === 'debug') {
-        console.error('Validation Service Error', error);
-      }
+      this._debugLog('Validation Service Error', error);
       this.error('Cannot validate batch');
     }
 

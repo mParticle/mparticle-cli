@@ -3,46 +3,54 @@ import Base from '../../../base';
 import { DataPlanService } from '@mparticle/data-planning-node';
 import { JSONFileSync } from '../../../utils/JSONFileSync';
 import { cli } from 'cli-ux';
+import { DataPlanVersion } from '@mparticle/data-planning-models';
+import { version } from 'punycode';
 
 const pjson = require('../../../../package.json');
 
-export default class DataPlanVersionFetch extends Base {
-  static description = `Fetches a Data Plan Version
+export default class DataPlanVersionDelete extends Base {
+  static description = `Deletes a Data Plan Version and uploads to mParticle
 
-Data Plan Versions are a subset of Data Plans and are used to validate batches.
+  Data Plans are comprised of one or more Data Plan Versions.
+    
+  A Version Document can be fetched by using your account credentials and a --versionNumber and --dataPlanId.
   
-A Version Document can be fetched by using your account credentials and a --versionNumber and --dataPlanId.
+  For more information, visit: ${pjson.homepage}
+  
+  `;
 
-For more information, visit: ${pjson.homepage}
-
-`;
-
-  static aliases = ['plan:dpv:fetch'];
+  static aliases = ['plan:dpv:delete'];
 
   static examples = [
-    `$ mp planning:data-plan-versions:fetch --dataPlanId=[DATA_PLAN_ID] --versionNumber=[VERSION_NUMBER] --workspaceId=[WORKSPACE_ID]`
+    `$ mp planning:data-plan-versions:delete --orgId=[ORG_ID] --accountId=[ACCOUNT_ID] --workspaceId=[WORKSPACE_ID] --dataPlanId=[DATA_PLAN_ID] --versionNumber=[VERSION_NUMBER]`
   ];
 
   static flags = {
     ...Base.flags,
 
+    accountId: flags.integer({
+      description: 'mParticle Account ID'
+    }),
+    orgId: flags.integer({
+      description: 'mParticle Organization ID'
+    }),
     workspaceId: flags.integer({
       description: 'mParticle Workspace ID'
-    }),
-
-    dataPlanId: flags.string({
-      description: 'Data Plan ID'
-    }),
-    versionNumber: flags.integer({
-      description: 'Data Plan Version Number'
     }),
 
     clientId: flags.string({
       description: 'Client ID for Platform API'
     }),
-
     clientSecret: flags.string({
       description: 'Client Secret for Platform API'
+    }),
+
+    dataPlanId: flags.string({
+      description: 'Data Plan ID'
+    }),
+
+    versionNumber: flags.integer({
+      description: 'Data Plan Version Number'
     }),
 
     config: flags.string({
@@ -51,8 +59,8 @@ For more information, visit: ${pjson.homepage}
   };
 
   async run() {
-    const { flags } = this.parse(DataPlanVersionFetch);
-    const { outFile, config, logLevel } = flags;
+    const { flags } = this.parse(DataPlanVersionDelete);
+    const { config, logLevel } = flags;
 
     let configFile;
 
@@ -61,16 +69,20 @@ For more information, visit: ${pjson.homepage}
       configFile = JSON.parse(configReader.read());
     }
 
+    let accountId = configFile?.global?.accountId ?? flags.accountId;
+    let orgId = configFile?.global?.orgId ?? flags.orgId;
     let workspaceId = configFile?.global?.workspaceId ?? flags.workspaceId;
     let clientId = configFile?.global?.clientId ?? flags.clientId;
     let clientSecret = configFile?.global?.clientSecret ?? flags.clientSecret;
+    let dataPlanId = configFile?.planningConfig?.dataPlanId ?? flags.dataPlanId;
     let versionNumber =
       configFile?.planningConfig?.versionNumber ?? flags.versionNumber;
-    let dataPlanId = configFile?.planningConfig?.dataPlanId ?? flags.dataPlanId;
 
     let dataPlanService: DataPlanService;
     try {
       dataPlanService = new DataPlanService({
+        orgId,
+        accountId,
         workspaceId,
         clientId,
         clientSecret
@@ -86,20 +98,27 @@ For more information, visit: ${pjson.homepage}
       this.error('Missing Data Plan ID and Version Number');
     }
 
-    let output = {};
-
-    const message = `Fetching Data Plan: ${dataPlanId}:v${versionNumber}`;
+    const message = 'Deleting Data Plan Version';
 
     cli.action.start(message);
 
     try {
-      output = await dataPlanService.getDataPlanVersion(
+      const result = await dataPlanService.deleteDataPlanVersion(
         dataPlanId,
         versionNumber
       );
+      if (result) {
+        this.log(
+          `Deleted Data Plan Version: '${dataPlanId}:v${versionNumber}'`
+        );
+      } else {
+        this.log(
+          `Could not delete Data Plan Version: '${dataPlanId}:v${versionNumber}'`
+        );
+      }
     } catch (error) {
       if (logLevel === 'debug') {
-        console.error('Data Plan Version Fetch Error', error);
+        console.error('Data Plan Version Delete Error', error);
       }
 
       if (error.response && error.response.statusText) {
@@ -108,20 +127,6 @@ For more information, visit: ${pjson.homepage}
       this.error(error);
     }
 
-    if (outFile) {
-      try {
-        cli.action.start(`Saving Data Plan Version to ${outFile}`);
-        const writer = new JSONFileSync(outFile);
-        writer.write(output);
-      } catch (error) {
-        if (logLevel === 'debug') {
-          console.error(error);
-        }
-        this.error(`Cannot write output to ${outFile}`);
-      }
-    } else {
-      this.log(JSON.stringify(output, null, 4));
-    }
     cli.action.stop();
   }
 }

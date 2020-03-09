@@ -2,6 +2,7 @@ import { flags } from '@oclif/command';
 import Base from '../../../base';
 import { DataPlanService } from '@mparticle/data-planning-node';
 import { JSONFileSync } from '../../../utils/JSONFileSync';
+import { getObject } from '../../../utils/getObject';
 import { cli } from 'cli-ux';
 import { BaseEvent } from '@mparticle/event-models';
 import { DataPlan, DataPlanVersion } from '@mparticle/data-planning-models';
@@ -69,27 +70,6 @@ For more information, visit: ${pjson.homepage}
     })
   };
 
-  getObject<T>(
-    name: 'event' | 'data_plan' | 'version',
-    str?: string,
-    path?: string
-  ): T | undefined {
-    if (str) {
-      try {
-        return JSON.parse(str) as T;
-      } catch (error) {
-        this.error(`Cannot parse ${name} string as JSON`);
-      }
-    } else if (path) {
-      try {
-        const reader = new JSONFileSync(path);
-        return JSON.parse(reader.read()) as T;
-      } catch (error) {
-        this.error(`Cannot read ${name} file`);
-      }
-    }
-  }
-
   async run() {
     const { flags } = this.parse(DataPlanEventValidate);
     const {
@@ -121,56 +101,59 @@ For more information, visit: ${pjson.homepage}
       );
     }
 
-    const initialEvent = this.getObject<BaseEvent>(
-      'event',
-      eventStr,
-      eventFile
-    );
+    let initialEvent;
+
+    try {
+      initialEvent = getObject<BaseEvent>(eventStr, eventFile);
+    } catch (error) {
+      this._debugLog('Error Fetching Event Object', error);
+      this.error(error);
+    }
+
     let event;
 
     if (initialEvent && translateEvents) {
-      if (logLevel === 'debug') {
-        console.log('Event Before Expansion', initialEvent);
-      }
+      this._debugLog('Event Before Expansion', initialEvent);
       event = expand(initialEvent) as BaseEvent;
     } else {
       event = initialEvent;
     }
 
-    if (logLevel === 'debug') {
-      console.log('Event Received', event);
-    }
+    this._debugLog('Event Received', event);
 
     if (!event) {
       this.error('Event is invalid');
     }
 
-    const dataPlan = this.getObject<DataPlan>(
-      'data_plan',
-      dataPlanStr,
-      dataPlanFile
-    );
+    const dataPlan = getObject<DataPlan>(dataPlanStr, dataPlanFile);
 
-    const dataPlanVersion = this.getObject<DataPlanVersion>(
-      'version',
+    this._debugLog('Data Plan received', dataPlan);
+
+    const dataPlanVersion = getObject<DataPlanVersion>(
       dataPlanVersionStr,
       dataPlanVersionFile
     );
+
+    this._debugLog('Data Plan Version received', dataPlanVersion);
 
     let document;
 
     if (dataPlanVersion) {
       document = dataPlanVersion?.version_document;
+      this._debugLog('Selected Data Plan Version', document);
     } else if (dataPlan && versionNumber) {
       document = dataPlan.data_plan_versions?.find(
         (dataPlanVersion: DataPlanVersion) =>
           dataPlanVersion.version === versionNumber
       )?.version_document;
+      this._debugLog(
+        'Selected Data Plan Version using plan and version number ' +
+          versionNumber,
+        document
+      );
     }
 
-    if (logLevel === 'debug') {
-      console.log('Data Plan Version received', event);
-    }
+    this._debugLog('Data Plan Document received', document);
 
     if (!document) {
       this.error('Data Plan Version is Invalid');
@@ -182,9 +165,7 @@ For more information, visit: ${pjson.homepage}
     try {
       results = dataPlanService.validateEvent(event, document);
     } catch (error) {
-      if (logLevel === 'debug') {
-        console.error('Validation Service Error', error);
-      }
+      this._debugLog('Validation Service Error', error);
       this.error('Cannot validate event');
     }
 

@@ -50,8 +50,7 @@ describe('planning:batches:validate', () => {
       'planning:batches:validate',
       '--batch=' + JSON.stringify(sampleBatch),
       '--dataPlan=' + JSON.stringify(sampleDataPlan),
-      '--versionNumber=1',
-      '--logLevel=debug'
+      '--versionNumber=1'
     ])
     .it('validates a batch with a Data Plan and Version Number', ctx => {
       expect(ctx.stdout.trim()).to.equals(

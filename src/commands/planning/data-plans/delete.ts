@@ -3,35 +3,38 @@ import Base from '../../../base';
 import { DataPlanService } from '@mparticle/data-planning-node';
 import { JSONFileSync } from '../../../utils/JSONFileSync';
 import { cli } from 'cli-ux';
+import { DataPlan } from '@mparticle/data-planning-models';
 
 const pjson = require('../../../../package.json');
 
-export default class DataPlanFetch extends Base {
-  static description = `Fetches a Data Plan
+export default class DataPlanDelete extends Base {
+  static description = `Deletes a Data Plan and uploads to mParticle
 
-Data Plans are comprised of one or more Data Plan Versions.
+  Data Plans are comprised of one or more Data Plan Versions.
+    
+  A Data Plan can be fetched using your account credentials and using a valid --dataPlanId
   
-A Data Plan can be fetched using your account credentials and using a valid --dataPlanId
+  For more information, visit: ${pjson.homepage}
+  
+  `;
 
-For more information, visit: ${pjson.homepage}
-
-`;
-
-  static aliases = ['plan:dp:fetch'];
+  static aliases = ['plan:dp:delete'];
 
   static examples = [
-    `$ mp planning:data-plan:fetch --dataPlanId=[DATA_PLAN_ID] --workspaceId=[WORKSPACE_ID]`
+    `$ mp planning:data-plan:delete --orgId=[ORG_ID] --accountId=[ACCOUNT_ID] --workspaceId=[WORKSPACE_ID] --dataPlanId=[DATA_PLAN_ID]`
   ];
 
   static flags = {
     ...Base.flags,
 
+    accountId: flags.integer({
+      description: 'mParticle Account ID'
+    }),
+    orgId: flags.integer({
+      description: 'mParticle Organization ID'
+    }),
     workspaceId: flags.integer({
       description: 'mParticle Workspace ID'
-    }),
-
-    dataPlanId: flags.string({
-      description: 'Data Plan ID'
     }),
 
     clientId: flags.string({
@@ -41,14 +44,18 @@ For more information, visit: ${pjson.homepage}
       description: 'Client Secret for Platform API'
     }),
 
+    dataPlanId: flags.string({
+      description: 'Data Plan ID'
+    }),
+
     config: flags.string({
       description: 'mParticle Config JSON File'
     })
   };
 
   async run() {
-    const { flags } = this.parse(DataPlanFetch);
-    const { outFile, config, logLevel } = flags;
+    const { flags } = this.parse(DataPlanDelete);
+    const { config, logLevel } = flags;
 
     let configFile;
 
@@ -57,6 +64,8 @@ For more information, visit: ${pjson.homepage}
       configFile = JSON.parse(configReader.read());
     }
 
+    let accountId = configFile?.global?.accountId ?? flags.accountId;
+    let orgId = configFile?.global?.orgId ?? flags.orgId;
     let workspaceId = configFile?.global?.workspaceId ?? flags.workspaceId;
     let clientId = configFile?.global?.clientId ?? flags.clientId;
     let clientSecret = configFile?.global?.clientSecret ?? flags.clientSecret;
@@ -65,6 +74,8 @@ For more information, visit: ${pjson.homepage}
     let dataPlanService: DataPlanService;
     try {
       dataPlanService = new DataPlanService({
+        orgId,
+        accountId,
         workspaceId,
         clientId,
         clientSecret
@@ -80,17 +91,20 @@ For more information, visit: ${pjson.homepage}
       this.error('Missing Data Plan ID');
     }
 
-    let output = {};
-
-    const message = `Fetching Data Plan: ${dataPlanId}`;
+    const message = 'Deleting Data Plan';
 
     cli.action.start(message);
 
     try {
-      output = await dataPlanService.getDataPlan(dataPlanId);
+      const result = await dataPlanService.deleteDataPlan(dataPlanId);
+      if (result) {
+        this.log(`Deleted Data Plan with ID '${dataPlanId}'`);
+      } else {
+        this.log(`Could not delete Data Plan ID: '${dataPlanId}'`);
+      }
     } catch (error) {
       if (logLevel === 'debug') {
-        console.error('Data Plan Fetch Error', error);
+        console.error('Data Plan Delete Error', error);
       }
 
       if (error.response && error.response.statusText) {
@@ -99,20 +113,6 @@ For more information, visit: ${pjson.homepage}
       this.error(error);
     }
 
-    if (outFile) {
-      try {
-        cli.action.start(`Saving Data Plan to ${outFile}`);
-        const writer = new JSONFileSync(outFile);
-        writer.write(output);
-      } catch (error) {
-        if (logLevel === 'debug') {
-          console.error(error);
-        }
-        this.error(`Cannot write output to ${outFile}`);
-      }
-    } else {
-      this.log(JSON.stringify(output, null, 4));
-    }
     cli.action.stop();
   }
 }
