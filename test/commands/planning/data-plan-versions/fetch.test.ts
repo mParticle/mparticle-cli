@@ -1,5 +1,6 @@
 import { expect, test } from '@oclif/test';
 import { JSONFileSync } from '../../../../src/utils/JSONFileSync';
+import { config } from '../../../../src/utils/config';
 import nock from 'nock';
 
 // Prevent CLI from hitting the interwebs
@@ -8,13 +9,13 @@ nock.disableNetConnect();
 describe('planning:data-plan-versions:fetch', () => {
   const sampleDocument = { version: 3, data_points: [] };
   test
-    .nock('https://sso.auth.mparticle.com', api => {
+    .nock(config.auth.apiRoot, api => {
       api
-        .post('/oauth/token', {
+        .post(`/${config.auth.path}`, {
           client_id: 'client',
           client_secret: 'secret',
-          audience: 'https://api.mparticle.com',
-          grant_type: 'client_credentials'
+          audience: config.auth.audienceUrl,
+          grant_type: config.auth.grant_type
         })
         .reply(200, {
           access_token: 'DAS token',
@@ -22,16 +23,14 @@ describe('planning:data-plan-versions:fetch', () => {
           token_type: 'Bearer'
         });
     })
-    .nock('https://api.mparticle.com', api => {
+    .nock(config.apiRoot, api => {
       api
-        .get('/planning/v1/1234/4567/8900/plans/foo/versions/3')
+        .get(`/${config.dataPlanningPath}/8900/plans/foo/versions/3`)
         .reply(200, sampleDocument);
     })
     .stdout()
     .command([
       'planning:data-plan-versions:fetch',
-      '--orgId=1234',
-      '--accountId=4567',
       '--workspaceId=8900',
       '--dataPlanId=foo',
       '--versionNumber=3',
@@ -45,13 +44,13 @@ describe('planning:data-plan-versions:fetch', () => {
     });
 
   test
-    .nock('https://sso.auth.mparticle.com', api => {
+    .nock(config.auth.apiRoot, api => {
       api
         .post('/oauth/token', {
           client_id: 'client',
           client_secret: 'secret',
-          audience: 'https://api.mparticle.com',
-          grant_type: 'client_credentials'
+          audience: config.auth.audienceUrl,
+          grant_type: config.auth.grant_type
         })
         .reply(200, {
           access_token: 'DAS token',
@@ -59,16 +58,14 @@ describe('planning:data-plan-versions:fetch', () => {
           token_type: 'Bearer'
         });
     })
-    .nock('https://api.mparticle.com', api => {
+    .nock(config.apiRoot, api => {
       api
-        .get('/planning/v1/1234/4567/8900/plans/test/versions/3')
+        .get(`/${config.dataPlanningPath}/8900/plans/test/versions/3`)
         .reply(200, sampleDocument);
     })
     .stub(JSONFileSync.prototype, 'read', () =>
       JSON.stringify({
         global: {
-          orgId: 1234,
-          accountId: 4567,
           workspaceId: 8900,
           clientId: 'client',
           clientSecret: 'secret'
@@ -92,13 +89,13 @@ describe('planning:data-plan-versions:fetch', () => {
     );
 
   test
-    .nock('https://sso.auth.mparticle.com', api => {
+    .nock(config.auth.apiRoot, api => {
       api
         .post('/oauth/token', {
           client_id: 'client',
           client_secret: 'secret',
-          audience: 'https://api.mparticle.com',
-          grant_type: 'client_credentials'
+          audience: config.auth.audienceUrl,
+          grant_type: config.auth.grant_type
         })
         .reply(200, {
           access_token: 'DAS token',
@@ -106,16 +103,14 @@ describe('planning:data-plan-versions:fetch', () => {
           token_type: 'Bearer'
         });
     })
-    .nock('https://api.mparticle.com', api => {
+    .nock(config.apiRoot, api => {
       api
-        .get('/planning/v1/1234/4567/8900/plans/test/versions/2')
+        .get(`/${config.dataPlanningPath}/8900/plans/test/versions/2`)
         .reply(200, sampleDocument);
     })
     .stub(JSONFileSync.prototype, 'read', () =>
       JSON.stringify({
         global: {
-          orgId: 1234,
-          accountId: 4567,
           workspaceId: 8900,
           clientId: 'client',
           clientSecret: 'secret'
@@ -148,8 +143,6 @@ describe('planning:data-plan-versions:fetch', () => {
     .stub(JSONFileSync.prototype, 'read', () =>
       JSON.stringify({
         global: {
-          orgId: 1234,
-          accountId: 4567,
           workspaceId: 8900,
           clientId: 'client',
           clientSecret: 'secret'

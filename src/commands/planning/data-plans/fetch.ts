@@ -20,18 +20,12 @@ For more information, visit: ${pjson.homepage}
   static aliases = ['plan:dp:fetch'];
 
   static examples = [
-    `$ mp planning:data-plan:fetch --dataPlanId=[DATA_PLAN_ID] --orgId=[ORG_ID] --accountId=[ACCOUNT_ID] --workspaceId=[WORKSPACE_ID]`
+    `$ mp planning:data-plan:fetch --dataPlanId=[DATA_PLAN_ID] --workspaceId=[WORKSPACE_ID]`
   ];
 
   static flags = {
     ...Base.flags,
 
-    accountId: flags.integer({
-      description: 'mParticle Account ID'
-    }),
-    orgId: flags.integer({
-      description: 'mParticle Organization ID'
-    }),
     workspaceId: flags.integer({
       description: 'mParticle Workspace ID'
     }),
@@ -63,8 +57,6 @@ For more information, visit: ${pjson.homepage}
       configFile = JSON.parse(configReader.read());
     }
 
-    let accountId = configFile?.global?.accountId ?? flags.accountId;
-    let orgId = configFile?.global?.orgId ?? flags.orgId;
     let workspaceId = configFile?.global?.workspaceId ?? flags.workspaceId;
     let clientId = configFile?.global?.clientId ?? flags.clientId;
     let clientSecret = configFile?.global?.clientSecret ?? flags.clientSecret;
@@ -73,8 +65,6 @@ For more information, visit: ${pjson.homepage}
     let dataPlanService: DataPlanService;
     try {
       dataPlanService = new DataPlanService({
-        orgId,
-        accountId,
         workspaceId,
         clientId,
         clientSecret
