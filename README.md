@@ -149,8 +149,7 @@ ALIASES
   $ mp plan:dpv:fetch
 
 EXAMPLE
-  $ mp planning:data-plan-versions:fetch --dataPlanId=[DATA_PLAN_ID] --versionNumber=[VERSION_NUMBER] --orgId=[ORG_ID]
-  --accountId=[ACCOUNT_ID] --workspaceId=[WORKSPACE_ID]
+  $ mp planning:data-plan-versions:fetch --dataPlanId=[DATA_PLAN_ID] --versionNumber=[VERSION_NUMBER] --workspaceId=[WORKSPACE_ID]
 ```
 
 _See code: [src/commands/planning/data-plan-versions/fetch.ts](https://github.com/mParticle/mparticle-cli/blob/v1.0.3/src/commands/planning/data-plan-versions/fetch.ts)_
@@ -165,13 +164,11 @@ USAGE
 
 OPTIONS
   -o, --outFile=outFile                    (optional) Output file for results (defaults to standard output)
-  --accountId=accountId                    mParticle Account ID
   --clientId=clientId                      Client ID for Platform API
   --clientSecret=clientSecret              Client Secret for Platform API
   --config=config                          mParticle Config JSON File
   --dataPlanId=dataPlanId                  Data Plan ID
   --logLevel=error|warn|info|debug|silent  [default: info] Log Level
-  --orgId=orgId                            mParticle Organization ID
   --workspaceId=workspaceId                mParticle Workspace ID
 
 DESCRIPTION
@@ -185,8 +182,7 @@ ALIASES
   $ mp plan:dp:fetch
 
 EXAMPLE
-  $ mp planning:data-plan:fetch --dataPlanId=[DATA_PLAN_ID] --orgId=[ORG_ID] --accountId=[ACCOUNT_ID]
-  --workspaceId=[WORKSPACE_ID]
+  $ mp planning:data-plan:fetch --dataPlanId=[DATA_PLAN_ID] --workspaceId=[WORKSPACE_ID]
 ```
 
 _See code: [src/commands/planning/data-plans/fetch.ts](https://github.com/mParticle/mparticle-cli/blob/v1.0.3/src/commands/planning/data-plans/fetch.ts)_

@@ -28,8 +28,6 @@ describe('planning:data-plan-versions:delete', () => {
     .stdout()
     .command([
       'planning:data-plan-versions:delete',
-      '--orgId=1234',
-      '--accountId=4567',
       '--workspaceId=8900',
       '--dataPlanId=test',
       '--versionNumber=5',

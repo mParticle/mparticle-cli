@@ -26,8 +26,6 @@ describe('planning:data-plans:delete', () => {
     .stdout()
     .command([
       'planning:data-plans:delete',
-      '--orgId=1234',
-      '--accountId=4567',
       '--workspaceId=8900',
       '--dataPlanId=test',
       '--clientId=client',

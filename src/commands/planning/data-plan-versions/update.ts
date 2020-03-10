@@ -22,18 +22,12 @@ export default class DataPlanVersionUpdate extends Base {
   static aliases = ['plan:dpv:update'];
 
   static examples = [
-    `$ mp planning:data-plan-versions:update --orgId=[ORG_ID] --accountId=[ACCOUNT_ID] --workspaceId=[WORKSPACE_ID] --dataPlanId=[DATA_PLAN_ID] --versionNumber=[VERSION_NUMBER] --dataPlanVersion=[DATA_PLAN_VERSION]`
+    `$ mp planning:data-plan-versions:update --workspaceId=[WORKSPACE_ID] --dataPlanId=[DATA_PLAN_ID] --versionNumber=[VERSION_NUMBER] --dataPlanVersion=[DATA_PLAN_VERSION]`
   ];
 
   static flags = {
     ...Base.flags,
 
-    accountId: flags.integer({
-      description: 'mParticle Account ID'
-    }),
-    orgId: flags.integer({
-      description: 'mParticle Organization ID'
-    }),
     workspaceId: flags.integer({
       description: 'mParticle Workspace ID'
     }),
@@ -67,25 +61,6 @@ export default class DataPlanVersionUpdate extends Base {
     })
   };
 
-  getObject<T>(name: 'data_plan_version', str?: string, path?: string): T {
-    if (str) {
-      try {
-        return JSON.parse(str) as T;
-      } catch (error) {
-        this.error(`Cannot parse ${name} string as JSON`);
-      }
-    } else if (path) {
-      try {
-        const reader = new JSONFileSync(path);
-        return JSON.parse(reader.read()) as T;
-      } catch (error) {
-        this.error(`Cannot read ${name} file`);
-      }
-    }
-
-    throw new Error(`Cannot proceess ${name}`);
-  }
-
   async run() {
     const { flags } = this.parse(DataPlanVersionUpdate);
     const { dataPlanVersionFile, config, logLevel } = flags;
@@ -102,8 +77,6 @@ export default class DataPlanVersionUpdate extends Base {
       configFile = JSON.parse(configReader.read());
     }
 
-    let accountId = configFile?.global?.accountId ?? flags.accountId;
-    let orgId = configFile?.global?.orgId ?? flags.orgId;
     let workspaceId = configFile?.global?.workspaceId ?? flags.workspaceId;
     let clientId = configFile?.global?.clientId ?? flags.clientId;
     let clientSecret = configFile?.global?.clientSecret ?? flags.clientSecret;
@@ -114,8 +87,6 @@ export default class DataPlanVersionUpdate extends Base {
     let dataPlanService: DataPlanService;
     try {
       dataPlanService = new DataPlanService({
-        orgId,
-        accountId,
         workspaceId,
         clientId,
         clientSecret

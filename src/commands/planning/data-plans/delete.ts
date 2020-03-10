@@ -3,7 +3,6 @@ import Base from '../../../base';
 import { DataPlanService } from '@mparticle/data-planning-node';
 import { JSONFileSync } from '../../../utils/JSONFileSync';
 import { cli } from 'cli-ux';
-import { DataPlan } from '@mparticle/data-planning-models';
 
 const pjson = require('../../../../package.json');
 
@@ -21,18 +20,12 @@ export default class DataPlanDelete extends Base {
   static aliases = ['plan:dp:delete'];
 
   static examples = [
-    `$ mp planning:data-plan:delete --orgId=[ORG_ID] --accountId=[ACCOUNT_ID] --workspaceId=[WORKSPACE_ID] --dataPlanId=[DATA_PLAN_ID]`
+    `$ mp planning:data-plan:delete --workspaceId=[WORKSPACE_ID] --dataPlanId=[DATA_PLAN_ID]`
   ];
 
   static flags = {
     ...Base.flags,
 
-    accountId: flags.integer({
-      description: 'mParticle Account ID'
-    }),
-    orgId: flags.integer({
-      description: 'mParticle Organization ID'
-    }),
     workspaceId: flags.integer({
       description: 'mParticle Workspace ID'
     }),
@@ -64,8 +57,6 @@ export default class DataPlanDelete extends Base {
       configFile = JSON.parse(configReader.read());
     }
 
-    let accountId = configFile?.global?.accountId ?? flags.accountId;
-    let orgId = configFile?.global?.orgId ?? flags.orgId;
     let workspaceId = configFile?.global?.workspaceId ?? flags.workspaceId;
     let clientId = configFile?.global?.clientId ?? flags.clientId;
     let clientSecret = configFile?.global?.clientSecret ?? flags.clientSecret;
@@ -74,8 +65,6 @@ export default class DataPlanDelete extends Base {
     let dataPlanService: DataPlanService;
     try {
       dataPlanService = new DataPlanService({
-        orgId,
-        accountId,
         workspaceId,
         clientId,
         clientSecret

@@ -34,8 +34,6 @@ describe('planning:data-plan-versions:create', () => {
     .stdout()
     .command([
       'planning:data-plan-versions:create',
-      '--orgId=1234',
-      '--accountId=4567',
       '--workspaceId=8900',
       '--dataPlanId=test',
       '--dataPlanVersion=' + JSON.stringify(sampleDataPlanVersion),

@@ -32,8 +32,6 @@ describe('planning:data-plans:create', () => {
     .stdout()
     .command([
       'planning:data-plans:create',
-      '--orgId=1234',
-      '--accountId=4567',
       '--workspaceId=8900',
       '--dataPlan=' + JSON.stringify(sampleDataPlan),
       '--clientId=client',

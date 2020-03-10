@@ -86,7 +86,6 @@ For more information, visit: ${pjson.homepage}
     const { flags } = this.parse(DataPlanBatchValidate);
     const {
       outFile,
-      logLevel,
       batchFile,
       dataPlanFile,
       dataPlanVersionFile,

@@ -22,18 +22,12 @@ export default class DataPlanUpdate extends Base {
   static aliases = ['plan:dp:update'];
 
   static examples = [
-    `$ mp planning:data-plan:update --orgId=[ORG_ID] --accountId=[ACCOUNT_ID] --workspaceId=[WORKSPACE_ID] --dataPlanId=[DATA_PLAN_ID] --dataPlan=[DATA_PLAN]`
+    `$ mp planning:data-plan:update --workspaceId=[WORKSPACE_ID] --dataPlanId=[DATA_PLAN_ID] --dataPlan=[DATA_PLAN]`
   ];
 
   static flags = {
     ...Base.flags,
 
-    accountId: flags.integer({
-      description: 'mParticle Account ID'
-    }),
-    orgId: flags.integer({
-      description: 'mParticle Organization ID'
-    }),
     workspaceId: flags.integer({
       description: 'mParticle Workspace ID'
     }),
@@ -79,8 +73,6 @@ export default class DataPlanUpdate extends Base {
       configFile = JSON.parse(configReader.read());
     }
 
-    let accountId = configFile?.global?.accountId ?? flags.accountId;
-    let orgId = configFile?.global?.orgId ?? flags.orgId;
     let workspaceId = configFile?.global?.workspaceId ?? flags.workspaceId;
     let clientId = configFile?.global?.clientId ?? flags.clientId;
     let clientSecret = configFile?.global?.clientSecret ?? flags.clientSecret;
@@ -89,8 +81,6 @@ export default class DataPlanUpdate extends Base {
     let dataPlanService: DataPlanService;
     try {
       dataPlanService = new DataPlanService({
-        orgId,
-        accountId,
         workspaceId,
         clientId,
         clientSecret
@@ -99,8 +89,6 @@ export default class DataPlanUpdate extends Base {
       this._debugLog('Data Plan Service Init Error', {
         error,
         credentials: {
-          orgId,
-          accountId,
           workspaceId,
           clientId,
           clientSecret

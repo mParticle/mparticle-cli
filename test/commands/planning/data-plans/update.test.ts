@@ -5,7 +5,6 @@ import nock from 'nock';
 nock.disableNetConnect();
 
 describe('planning:data-plans:update', () => {
-  const sampleDataPlan = { data_plan_name: 'Test' };
   const updatedDataPlan = {
     data_plan_id: 'test',
     data_plan_name: 'Test',
@@ -35,8 +34,6 @@ describe('planning:data-plans:update', () => {
     .stdout()
     .command([
       'planning:data-plans:update',
-      '--orgId=1234',
-      '--accountId=4567',
       '--workspaceId=8900',
       '--dataPlanId=test',
       '--dataPlan=' + JSON.stringify(updatedDataPlan),
