@@ -129,22 +129,20 @@ For more information, visit: ${pjson.homepage}
 
     this._debugLog('Data Plan received', dataPlan);
 
-    const dataPlanVersion = getObject<DataPlanVersion>(
+    let dataPlanVersion = getObject<DataPlanVersion>(
       dataPlanVersionStr,
       dataPlanVersionFile
     );
 
     this._debugLog('Data Plan Version received', dataPlanVersion);
 
-    let document;
-
-    if (dataPlanVersion) {
-      document = this.getVersionDocument(dataPlanVersion);
-    } else if (dataPlan) {
-      document = this.getVersionDocument(dataPlan, versionNumber);
+    if (dataPlan && versionNumber) {
+      dataPlanVersion = dataPlan.data_plan_versions?.find(
+        (planVersion: DataPlanVersion) => planVersion.version === versionNumber
+      );
     }
 
-    if (!document) {
+    if (!dataPlanVersion) {
       this.error('Data Plan Version is Invalid');
     }
 
@@ -152,7 +150,7 @@ For more information, visit: ${pjson.homepage}
     const dataPlanService = new DataPlanService();
     let results;
     try {
-      results = dataPlanService.validateBatch(batch, document);
+      results = dataPlanService.validateBatch(batch, dataPlanVersion);
     } catch (error) {
       this._debugLog('Validation Service Error', error);
       this.error('Cannot validate batch');

@@ -74,7 +74,6 @@ For more information, visit: ${pjson.homepage}
     const { flags } = this.parse(DataPlanEventValidate);
     const {
       outFile,
-      logLevel,
       eventFile,
       dataPlanFile,
       dataPlanVersionFile,
@@ -129,33 +128,20 @@ For more information, visit: ${pjson.homepage}
 
     this._debugLog('Data Plan received', dataPlan);
 
-    const dataPlanVersion = getObject<DataPlanVersion>(
+    let dataPlanVersion = getObject<DataPlanVersion>(
       dataPlanVersionStr,
       dataPlanVersionFile
     );
 
     this._debugLog('Data Plan Version received', dataPlanVersion);
 
-    let document;
-
-    if (dataPlanVersion) {
-      document = dataPlanVersion?.version_document;
-      this._debugLog('Selected Data Plan Version', document);
-    } else if (dataPlan && versionNumber) {
-      document = dataPlan.data_plan_versions?.find(
-        (dataPlanVersion: DataPlanVersion) =>
-          dataPlanVersion.version === versionNumber
-      )?.version_document;
-      this._debugLog(
-        'Selected Data Plan Version using plan and version number ' +
-          versionNumber,
-        document
+    if (dataPlan && versionNumber) {
+      dataPlanVersion = dataPlan.data_plan_versions?.find(
+        (planVersion: DataPlanVersion) => planVersion.version === versionNumber
       );
     }
 
-    this._debugLog('Data Plan Document received', document);
-
-    if (!document) {
+    if (!dataPlanVersion) {
       this.error('Data Plan Version is Invalid');
     }
 
@@ -163,7 +149,7 @@ For more information, visit: ${pjson.homepage}
     const dataPlanService = new DataPlanService();
     let results;
     try {
-      results = dataPlanService.validateEvent(event, document);
+      results = dataPlanService.validateEvent(event, dataPlanVersion);
     } catch (error) {
       this._debugLog('Validation Service Error', error);
       this.error('Cannot validate event');
