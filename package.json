@@ -1,7 +1,7 @@
 {
   "name": "@mparticle/cli",
   "description": "mParticle Command Line Interface",
-  "version": "1.0.3",
+  "version": "1.0.4-alpha.0",
   "author": "Alexander Sapountzis @alexs-mparticle",
   "bin": {
     "mp": "./bin/run"
