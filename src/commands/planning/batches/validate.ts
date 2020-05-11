@@ -8,7 +8,7 @@ import { Batch } from '@mparticle/event-models';
 import {
   DataPlan,
   DataPlanDocument,
-  DataPlanVersion
+  DataPlanVersion,
 } from '@mparticle/data-planning-models';
 
 const pjson = require('../../../../package.json');
@@ -31,42 +31,61 @@ For more information, visit: ${pjson.homepage}
     `$ mp planning:batches:validate --batch=[BATCH] --dataPlan=[DATA_PLAN] --versionNumber=[VERSION_NUMBER]`,
     `$ mp planning:batches:validate --batch=[BATCH] --dataPlanVersion=[DATA_PLAN_VERSION]`,
     `$ mp planning:batches:validate --batchFile=/path/to/batch --dataPlanFile=/path/to/dataplan --versionNumber=[VERSION_NUMBER]`,
-    `$ mp planning:batches:validate --batchFile=/path/to/batch --dataPlanVersion=/path/to/dataplanversion`
+    `$ mp planning:batches:validate --batchFile=/path/to/batch --dataPlanVersion=/path/to/dataplanversion`,
   ];
 
   static flags = {
     ...Base.flags,
 
+    workspaceId: flags.integer({
+      description: 'mParticle Workspace ID',
+    }),
+
+    clientId: flags.string({
+      description: 'Client ID for Platform API',
+    }),
+    clientSecret: flags.string({
+      description: 'Client Secret for Platform API',
+    }),
+
     batch: flags.string({
       description: 'Batch as Stringified JSON',
-      exclusive: ['batchFile']
+      exclusive: ['batchFile'],
     }),
     batchFile: flags.string({
       description: 'Path to saved JSON file of a Batch',
-      exclusive: ['batch']
+      exclusive: ['batch'],
     }),
     dataPlan: flags.string({
       description: 'Data Plan as Stringified JSON',
       exclusive: ['dataPlanFile'],
-      dependsOn: ['versionNumber']
+      dependsOn: ['versionNumber'],
     }),
     dataPlanFile: flags.string({
       description: 'Path to saved JSON file of a Data Plan',
       exclusive: ['dataPlan'],
-      dependsOn: ['versionNumber']
+      dependsOn: ['versionNumber'],
     }),
 
     // required with data plan file str
     versionNumber: flags.integer({
-      description: 'Data Plan Version Number'
+      description: 'Data Plan Version Number',
     }),
 
     dataPlanVersion: flags.string({
-      description: 'Data Plan Version Document as Stringified JSON'
+      description: 'Data Plan Version Document as Stringified JSON',
     }),
     dataPlanVersionFile: flags.string({
-      description: 'Path to saved JSON file of a Data Plan Version'
-    })
+      description: 'Path to saved JSON file of a Data Plan Version',
+    }),
+
+    serverMode: flags.boolean({
+      description: 'Validate using mParticle Server-side validation',
+    }),
+
+    config: flags.string({
+      description: 'mParticle Config JSON File',
+    }),
   };
 
   getVersionDocument(
@@ -85,12 +104,25 @@ For more information, visit: ${pjson.homepage}
   async run() {
     const { flags } = this.parse(DataPlanBatchValidate);
     const {
+      config,
       outFile,
       batchFile,
       dataPlanFile,
       dataPlanVersionFile,
-      versionNumber
+      serverMode,
+      versionNumber,
     } = flags;
+
+    let configFile;
+
+    if (config) {
+      const configReader = new JSONFileSync(config);
+      configFile = JSON.parse(configReader.read());
+    }
+
+    let workspaceId = configFile?.global?.workspaceId ?? flags.workspaceId;
+    let clientId = configFile?.global?.clientId ?? flags.clientId;
+    let clientSecret = configFile?.global?.clientSecret ?? flags.clientSecret;
 
     const batchStr = flags.batch;
     const dataPlanStr = flags.dataPlan;
@@ -147,13 +179,39 @@ For more information, visit: ${pjson.homepage}
     }
 
     cli.action.start('Validating Batch');
-    const dataPlanService = new DataPlanService();
+
+    const options = {
+      serverMode,
+    };
+
+    let credentials;
+
+    if (serverMode) {
+      credentials = {
+        workspaceId,
+        clientId,
+        clientSecret,
+      };
+    }
+
+    const dataPlanService = new DataPlanService(credentials);
+
     let results;
     try {
-      results = dataPlanService.validateBatch(batch, dataPlanVersion);
+      results = await dataPlanService.validateBatch(
+        batch,
+        dataPlanVersion,
+        options
+      );
     } catch (error) {
       this._debugLog('Validation Service Error', error);
-      this.error('Cannot validate batch');
+
+      if (error.errors) {
+        const errorMessage = 'Server Validation Failed:';
+        this.error(this._generateErrorList(errorMessage, error.errors));
+      }
+
+      this.error(error);
     }
 
     if (outFile) {

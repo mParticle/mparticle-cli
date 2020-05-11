@@ -22,43 +22,43 @@ export default class DataPlanVersionCreate extends Base {
   static aliases = ['plan:dpv:create'];
 
   static examples = [
-    `$ mp planning:data-plan-versions:create --workspaceId=[WORKSPACE_ID] --dataPlanId=[DATA_PLAN_ID] --dataPlan=[DATA_PLAN]`
+    `$ mp planning:data-plan-versions:create --workspaceId=[WORKSPACE_ID] --dataPlanId=[DATA_PLAN_ID] --dataPlan=[DATA_PLAN]`,
   ];
 
   static flags = {
     ...Base.flags,
 
     workspaceId: flags.integer({
-      description: 'mParticle Workspace ID'
+      description: 'mParticle Workspace ID',
     }),
 
     clientId: flags.string({
-      description: 'Client ID for Platform API'
+      description: 'Client ID for Platform API',
     }),
     clientSecret: flags.string({
-      description: 'Client Secret for Platform API'
+      description: 'Client Secret for Platform API',
     }),
 
     dataPlanId: flags.string({
-      description: 'Data Plan ID'
+      description: 'Data Plan ID',
     }),
     dataPlanVersion: flags.string({
       description: 'Data Plan Version as Stringified JSON',
-      exclusive: ['dataPlanVersionFile']
+      exclusive: ['dataPlanVersionFile'],
     }),
     dataPlanVersionFile: flags.string({
       description: 'Path to saved JSON file of a Data Plan Version',
-      exclusive: ['dataPlanVersion']
+      exclusive: ['dataPlanVersion'],
     }),
 
     config: flags.string({
-      description: 'mParticle Config JSON File'
-    })
+      description: 'mParticle Config JSON File',
+    }),
   };
 
   async run() {
     const { flags } = this.parse(DataPlanVersionCreate);
-    const { dataPlanVersionFile, config, logLevel } = flags;
+    const { dataPlanVersionFile, config } = flags;
 
     const dataPlanVersionStr = flags.dataPlanVersion;
     if (!dataPlanVersionStr && !dataPlanVersionFile) {
@@ -82,7 +82,7 @@ export default class DataPlanVersionCreate extends Base {
       dataPlanService = new DataPlanService({
         workspaceId,
         clientId,
-        clientSecret
+        clientSecret,
       });
     } catch (error) {
       this._debugLog('Cannot create instance of Data Plan Service', {
@@ -90,8 +90,8 @@ export default class DataPlanVersionCreate extends Base {
         credentials: {
           workspaceId,
           clientId,
-          clientSecret
-        }
+          clientSecret,
+        },
       });
       this.error(error.message);
     }
@@ -126,12 +126,14 @@ export default class DataPlanVersionCreate extends Base {
         dataPlanId,
         dataPlanVersion
       );
+
       this.log(`Created Data Plan Version: '${dataPlanId}:v${result.version}'`);
     } catch (error) {
       this._debugLog('Data Plan Version Creation Error', error);
 
-      if (error.response && error.response.statusText) {
-        this.error(error.response.statusText);
+      if (error.errors) {
+        const errorMessage = 'Data Plan Version Creation Failed:';
+        this.error(this._generateErrorList(errorMessage, error.errors));
       }
       this.error(error);
     }

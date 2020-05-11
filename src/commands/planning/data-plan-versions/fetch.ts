@@ -20,34 +20,34 @@ For more information, visit: ${pjson.homepage}
   static aliases = ['plan:dpv:fetch'];
 
   static examples = [
-    `$ mp planning:data-plan-versions:fetch --dataPlanId=[DATA_PLAN_ID] --versionNumber=[VERSION_NUMBER] --workspaceId=[WORKSPACE_ID]`
+    `$ mp planning:data-plan-versions:fetch --dataPlanId=[DATA_PLAN_ID] --versionNumber=[VERSION_NUMBER] --workspaceId=[WORKSPACE_ID]`,
   ];
 
   static flags = {
     ...Base.flags,
 
     workspaceId: flags.integer({
-      description: 'mParticle Workspace ID'
+      description: 'mParticle Workspace ID',
     }),
 
     dataPlanId: flags.string({
-      description: 'Data Plan ID'
+      description: 'Data Plan ID',
     }),
     versionNumber: flags.integer({
-      description: 'Data Plan Version Number'
+      description: 'Data Plan Version Number',
     }),
 
     clientId: flags.string({
-      description: 'Client ID for Platform API'
+      description: 'Client ID for Platform API',
     }),
 
     clientSecret: flags.string({
-      description: 'Client Secret for Platform API'
+      description: 'Client Secret for Platform API',
     }),
 
     config: flags.string({
-      description: 'mParticle Config JSON File'
-    })
+      description: 'mParticle Config JSON File',
+    }),
   };
 
   async run() {
@@ -68,12 +68,16 @@ For more information, visit: ${pjson.homepage}
       configFile?.planningConfig?.versionNumber ?? flags.versionNumber;
     let dataPlanId = configFile?.planningConfig?.dataPlanId ?? flags.dataPlanId;
 
+    if (!dataPlanId || !versionNumber) {
+      this.error('Missing Data Plan ID and Version Number');
+    }
+
     let dataPlanService: DataPlanService;
     try {
       dataPlanService = new DataPlanService({
         workspaceId,
         clientId,
-        clientSecret
+        clientSecret,
       });
     } catch (error) {
       if (logLevel === 'debug') {
@@ -82,29 +86,25 @@ For more information, visit: ${pjson.homepage}
       this.error(error.message);
     }
 
-    if (!dataPlanId && !versionNumber) {
-      this.error('Missing Data Plan ID and Version Number');
-    }
-
-    let output = {};
+    let result;
 
     const message = `Fetching Data Plan: ${dataPlanId}:v${versionNumber}`;
 
     cli.action.start(message);
 
     try {
-      output = await dataPlanService.getDataPlanVersion(
+      result = await dataPlanService.getDataPlanVersion(
         dataPlanId,
         versionNumber
       );
     } catch (error) {
-      if (logLevel === 'debug') {
-        console.error('Data Plan Version Fetch Error', error);
+      this._debugLog('Data Plan Version Fetch Error', error);
+
+      if (error.errors) {
+        const errorMessage = 'Data Plan Version Fetch Failed:';
+        this.error(this._generateErrorList(errorMessage, error.errors));
       }
 
-      if (error.response && error.response.statusText) {
-        this.error(error.response.statusText);
-      }
       this.error(error);
     }
 
@@ -112,7 +112,7 @@ For more information, visit: ${pjson.homepage}
       try {
         cli.action.start(`Saving Data Plan Version to ${outFile}`);
         const writer = new JSONFileSync(outFile);
-        writer.write(output);
+        writer.write(result);
       } catch (error) {
         if (logLevel === 'debug') {
           console.error(error);
@@ -120,7 +120,7 @@ For more information, visit: ${pjson.homepage}
         this.error(`Cannot write output to ${outFile}`);
       }
     } else {
-      this.log(JSON.stringify(output, null, 4));
+      this.log(JSON.stringify(result, null, 4));
     }
     cli.action.stop();
   }

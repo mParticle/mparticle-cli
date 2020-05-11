@@ -20,30 +20,30 @@ For more information, visit: ${pjson.homepage}
   static aliases = ['plan:dp:fetch'];
 
   static examples = [
-    `$ mp planning:data-plan:fetch --dataPlanId=[DATA_PLAN_ID] --workspaceId=[WORKSPACE_ID]`
+    `$ mp planning:data-plan:fetch --dataPlanId=[DATA_PLAN_ID] --workspaceId=[WORKSPACE_ID]`,
   ];
 
   static flags = {
     ...Base.flags,
 
     workspaceId: flags.integer({
-      description: 'mParticle Workspace ID'
+      description: 'mParticle Workspace ID',
     }),
 
     dataPlanId: flags.string({
-      description: 'Data Plan ID'
+      description: 'Data Plan ID',
     }),
 
     clientId: flags.string({
-      description: 'Client ID for Platform API'
+      description: 'Client ID for Platform API',
     }),
     clientSecret: flags.string({
-      description: 'Client Secret for Platform API'
+      description: 'Client Secret for Platform API',
     }),
 
     config: flags.string({
-      description: 'mParticle Config JSON File'
-    })
+      description: 'mParticle Config JSON File',
+    }),
   };
 
   async run() {
@@ -67,7 +67,7 @@ For more information, visit: ${pjson.homepage}
       dataPlanService = new DataPlanService({
         workspaceId,
         clientId,
-        clientSecret
+        clientSecret,
       });
     } catch (error) {
       if (logLevel === 'debug') {
@@ -80,21 +80,20 @@ For more information, visit: ${pjson.homepage}
       this.error('Missing Data Plan ID');
     }
 
-    let output = {};
+    let result;
 
     const message = `Fetching Data Plan: ${dataPlanId}`;
 
     cli.action.start(message);
 
     try {
-      output = await dataPlanService.getDataPlan(dataPlanId);
+      result = await dataPlanService.getDataPlan(dataPlanId);
     } catch (error) {
-      if (logLevel === 'debug') {
-        console.error('Data Plan Fetch Error', error);
-      }
+      this._debugLog('Data Plan Fetch Error', error);
 
-      if (error.response && error.response.statusText) {
-        this.error(error.response.statusText);
+      if (error.errors) {
+        const errorMessage = 'Data Plan Fetch Failed:';
+        this.error(this._generateErrorList(errorMessage, error.errors));
       }
       this.error(error);
     }
@@ -103,7 +102,7 @@ For more information, visit: ${pjson.homepage}
       try {
         cli.action.start(`Saving Data Plan to ${outFile}`);
         const writer = new JSONFileSync(outFile);
-        writer.write(output);
+        writer.write(result);
       } catch (error) {
         if (logLevel === 'debug') {
           console.error(error);
@@ -111,7 +110,7 @@ For more information, visit: ${pjson.homepage}
         this.error(`Cannot write output to ${outFile}`);
       }
     } else {
-      this.log(JSON.stringify(output, null, 4));
+      this.log(JSON.stringify(result, null, 4));
     }
     cli.action.stop();
   }

@@ -22,34 +22,34 @@ export default class DataPlanVersionDelete extends Base {
   static aliases = ['plan:dpv:delete'];
 
   static examples = [
-    `$ mp planning:data-plan-versions:delete --workspaceId=[WORKSPACE_ID] --dataPlanId=[DATA_PLAN_ID] --versionNumber=[VERSION_NUMBER]`
+    `$ mp planning:data-plan-versions:delete --workspaceId=[WORKSPACE_ID] --dataPlanId=[DATA_PLAN_ID] --versionNumber=[VERSION_NUMBER]`,
   ];
 
   static flags = {
     ...Base.flags,
 
     workspaceId: flags.integer({
-      description: 'mParticle Workspace ID'
+      description: 'mParticle Workspace ID',
     }),
 
     clientId: flags.string({
-      description: 'Client ID for Platform API'
+      description: 'Client ID for Platform API',
     }),
     clientSecret: flags.string({
-      description: 'Client Secret for Platform API'
+      description: 'Client Secret for Platform API',
     }),
 
     dataPlanId: flags.string({
-      description: 'Data Plan ID'
+      description: 'Data Plan ID',
     }),
 
     versionNumber: flags.integer({
-      description: 'Data Plan Version Number'
+      description: 'Data Plan Version Number',
     }),
 
     config: flags.string({
-      description: 'mParticle Config JSON File'
-    })
+      description: 'mParticle Config JSON File',
+    }),
   };
 
   async run() {
@@ -70,22 +70,22 @@ export default class DataPlanVersionDelete extends Base {
     let versionNumber =
       configFile?.planningConfig?.versionNumber ?? flags.versionNumber;
 
+    if (!dataPlanId || !versionNumber) {
+      this.error('Missing Data Plan ID and Version Number');
+    }
+
     let dataPlanService: DataPlanService;
     try {
       dataPlanService = new DataPlanService({
         workspaceId,
         clientId,
-        clientSecret
+        clientSecret,
       });
     } catch (error) {
       if (logLevel === 'debug') {
         console.error(error);
       }
       this.error(error.message);
-    }
-
-    if (!dataPlanId && !versionNumber) {
-      this.error('Missing Data Plan ID and Version Number');
     }
 
     const message = 'Deleting Data Plan Version';
@@ -97,23 +97,15 @@ export default class DataPlanVersionDelete extends Base {
         dataPlanId,
         versionNumber
       );
-      if (result) {
-        this.log(
-          `Deleted Data Plan Version: '${dataPlanId}:v${versionNumber}'`
-        );
-      } else {
-        this.log(
-          `Could not delete Data Plan Version: '${dataPlanId}:v${versionNumber}'`
-        );
-      }
+      this.log(`Deleted Data Plan Version: '${dataPlanId}:v${versionNumber}'`);
     } catch (error) {
-      if (logLevel === 'debug') {
-        console.error('Data Plan Version Delete Error', error);
+      this._debugLog('Data Plan Version Delete Error', error);
+
+      if (error.errors) {
+        const errorMessage = 'Data Plan Version Delete Failed:';
+        this.error(this._generateErrorList(errorMessage, error.errors));
       }
 
-      if (error.response && error.response.statusText) {
-        this.error(error.response.statusText);
-      }
       this.error(error);
     }
 

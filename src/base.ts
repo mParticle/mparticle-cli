@@ -3,7 +3,7 @@ import { Input } from '@oclif/parser';
 
 export default abstract class Base extends Command {
   flags = {
-    logLevel: {}
+    logLevel: {},
   };
   args = [];
 
@@ -11,13 +11,13 @@ export default abstract class Base extends Command {
     logLevel: flags.string({
       options: ['error', 'warn', 'info', 'debug', 'silent'],
       default: 'info',
-      description: 'Log Level'
+      description: 'Log Level',
     }),
     outFile: flags.string({
       char: 'o',
       description:
-        '(optional) Output file for results (defaults to standard output)'
-    })
+        '(optional) Output file for results (defaults to standard output)',
+    }),
   };
 
   static args = [];
@@ -26,6 +26,14 @@ export default abstract class Base extends Command {
     if (this.flags.logLevel === 'debug') {
       console.log(message, JSON.stringify(object, null, 4));
     }
+  }
+
+  _generateErrorList(message: string, messages: string[]) {
+    return (
+      message +
+      '\n' +
+      messages.map((error: any) => ` - ${error.message}`).join('\n')
+    );
   }
 
   async init() {

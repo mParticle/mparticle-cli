@@ -9,21 +9,21 @@ nock.disableNetConnect();
 describe('planning:data-plans:fetch', () => {
   const sampleDataPlan = { fake_data_plan: 'this is fake' };
   test
-    .nock(config.auth.apiRoot, api => {
+    .nock(config.auth.apiRoot, (api) => {
       api
         .post(`/${config.auth.path}`, {
           client_id: 'client',
           client_secret: 'secret',
           audience: config.auth.audienceUrl,
-          grant_type: config.auth.grant_type
+          grant_type: config.auth.grant_type,
         })
         .reply(200, {
           access_token: 'DAS token',
           expires_in: 5,
-          token_type: 'Bearer'
+          token_type: 'Bearer',
         });
     })
-    .nock(config.apiRoot, api => {
+    .nock(config.apiRoot, (api) => {
       api
         .get(`/${config.dataPlanningPath}/8900/plans/foo`)
         .reply(200, sampleDataPlan);
@@ -34,30 +34,30 @@ describe('planning:data-plans:fetch', () => {
       '--workspaceId=8900',
       '--dataPlanId=foo',
       '--clientId=client',
-      '--clientSecret=secret'
+      '--clientSecret=secret',
     ])
-    .it('returns a data plan with valid arguments', ctx => {
+    .it('returns a data plan with valid arguments', (ctx) => {
       expect(ctx.stdout.trim()).to.equals(
         JSON.stringify(sampleDataPlan, null, 4).trim()
       );
     });
 
   test
-    .nock(config.auth.apiRoot, api => {
+    .nock(config.auth.apiRoot, (api) => {
       api
         .post('/oauth/token', {
           client_id: 'client',
           client_secret: 'secret',
           audience: config.auth.audienceUrl,
-          grant_type: config.auth.grant_type
+          grant_type: config.auth.grant_type,
         })
         .reply(200, {
           access_token: 'DAS token',
           expires_in: 5,
-          token_type: 'Bearer'
+          token_type: 'Bearer',
         });
     })
-    .nock(config.apiRoot, api => {
+    .nock(config.apiRoot, (api) => {
       api
         .get(`/${config.dataPlanningPath}/8900/plans/foo`)
         .reply(200, sampleDataPlan);
@@ -67,38 +67,41 @@ describe('planning:data-plans:fetch', () => {
         global: {
           workspaceId: 8900,
           clientId: 'client',
-          clientSecret: 'secret'
-        }
+          clientSecret: 'secret',
+        },
       })
     )
     .stdout()
     .command([
       'planning:data-plans:fetch',
       '--dataPlanId=foo',
-      '--config=mp.config.json'
+      '--config=mp.config.json',
     ])
-    .it('returns a data plan with valid credentials in a config file', ctx => {
-      expect(ctx.stdout.trim()).to.equals(
-        JSON.stringify(sampleDataPlan, null, 4).trim()
-      );
-    });
+    .it(
+      'returns a data plan with valid credentials in a config file',
+      (ctx) => {
+        expect(ctx.stdout.trim()).to.equals(
+          JSON.stringify(sampleDataPlan, null, 4).trim()
+        );
+      }
+    );
 
   test
-    .nock(config.auth.apiRoot, api => {
+    .nock(config.auth.apiRoot, (api) => {
       api
         .post('/oauth/token', {
           client_id: 'client',
           client_secret: 'secret',
           audience: config.auth.audienceUrl,
-          grant_type: config.auth.grant_type
+          grant_type: config.auth.grant_type,
         })
         .reply(200, {
           access_token: 'DAS token',
           expires_in: 5,
-          token_type: 'Bearer'
+          token_type: 'Bearer',
         });
     })
-    .nock(config.apiRoot, api => {
+    .nock(config.apiRoot, (api) => {
       api
         .get(`/${config.dataPlanningPath}/8900/plans/test`)
         .reply(200, sampleDataPlan);
@@ -108,16 +111,16 @@ describe('planning:data-plans:fetch', () => {
         global: {
           workspaceId: 8900,
           clientId: 'client',
-          clientSecret: 'secret'
+          clientSecret: 'secret',
         },
         planningConfig: {
-          dataPlanId: 'test'
-        }
+          dataPlanId: 'test',
+        },
       })
     )
     .stdout()
     .command(['planning:data-plans:fetch', '--config=mp.config.json'])
-    .it('returns a data plan with a full config file', ctx => {
+    .it('returns a data plan with a full config file', (ctx) => {
       expect(ctx.stdout.trim()).to.equals(
         JSON.stringify(sampleDataPlan, null, 4).trim()
       );
@@ -126,7 +129,7 @@ describe('planning:data-plans:fetch', () => {
   test
     .stdout()
     .command(['planning:data-plans:fetch', '--dataPlanId=foo'])
-    .catch('Invalid Credentials for generating API Request')
+    .catch('Missing Credentials for generating API Request')
     .it('returns an error if credentials are missing');
 
   test
@@ -135,12 +138,49 @@ describe('planning:data-plans:fetch', () => {
         global: {
           workspaceId: 8900,
           clientId: 'client',
-          clientSecret: 'secret'
-        }
+          clientSecret: 'secret',
+        },
       })
     )
     .stdout()
     .command(['planning:data-plans:fetch', '--config=mp.config.json'])
     .catch('Missing Data Plan ID')
     .it('returns an error if data plan id is missing');
+
+  test
+    .nock(config.auth.apiRoot, (api) => {
+      api
+        .post(`/${config.auth.path}`, {
+          client_id: 'client',
+          client_secret: 'secret',
+          audience: config.auth.audienceUrl,
+          grant_type: config.auth.grant_type,
+        })
+        .reply(200, {
+          access_token: 'DAS token',
+          expires_in: 5,
+          token_type: 'Bearer',
+        });
+    })
+    .nock(config.apiRoot, (api) => {
+      api.get(`/${config.dataPlanningPath}/8900/plans/test`).reply(404, {
+        errors: [
+          {
+            message: 'The specified plan ID test was not found',
+          },
+        ],
+      });
+    })
+    .stdout()
+    .command([
+      'planning:data-plans:fetch',
+      '--workspaceId=8900',
+      '--dataPlanId=test',
+      '--clientId=client',
+      '--clientSecret=secret',
+    ])
+    .catch(
+      'Data Plan Fetch Failed:\n - The specified plan ID test was not found'
+    )
+    .it('returns errors as a list');
 });

@@ -22,35 +22,35 @@ export default class DataPlanCreate extends Base {
   static aliases = ['plan:dp:create'];
 
   static examples = [
-    `$ mp planning:data-plan:create --workspaceId=[WORKSPACE_ID] --dataPlan=[DATA_PLAN]`
+    `$ mp planning:data-plan:create --workspaceId=[WORKSPACE_ID] --dataPlan=[DATA_PLAN]`,
   ];
 
   static flags = {
     ...Base.flags,
 
     workspaceId: flags.integer({
-      description: 'mParticle Workspace ID'
+      description: 'mParticle Workspace ID',
     }),
 
     clientId: flags.string({
-      description: 'Client ID for Platform API'
+      description: 'Client ID for Platform API',
     }),
     clientSecret: flags.string({
-      description: 'Client Secret for Platform API'
+      description: 'Client Secret for Platform API',
     }),
 
     dataPlan: flags.string({
       description: 'Data Plan as Stringified JSON',
-      exclusive: ['dataPlanFile']
+      exclusive: ['dataPlanFile'],
     }),
     dataPlanFile: flags.string({
       description: 'Path to saved JSON file of a Data Plan',
-      exclusive: ['dataPlan']
+      exclusive: ['dataPlan'],
     }),
 
     config: flags.string({
-      description: 'mParticle Config JSON File'
-    })
+      description: 'mParticle Config JSON File',
+    }),
   };
 
   async run() {
@@ -78,7 +78,7 @@ export default class DataPlanCreate extends Base {
       dataPlanService = new DataPlanService({
         workspaceId,
         clientId,
-        clientSecret
+        clientSecret,
       });
     } catch (error) {
       this._debugLog('Data Plan Service Init Error', {
@@ -86,8 +86,8 @@ export default class DataPlanCreate extends Base {
         credentials: {
           workspaceId,
           clientId,
-          clientSecret
-        }
+          clientSecret,
+        },
       });
       this.error(error.message);
     }
@@ -112,19 +112,16 @@ export default class DataPlanCreate extends Base {
 
     try {
       const result = await dataPlanService.createDataPlan(dataPlan);
+
       this.log(`Created Data Plan with ID '${result.data_plan_id}'`);
     } catch (error) {
       this._debugLog('Data Plan Creation Error', error);
 
-      if (
-        error.response &&
-        error.response.data &&
-        error.response.data.message
-      ) {
-        this.error(error.response.data.message);
-      } else if (error.response && error.response.statusText) {
-        this.error(error.response.statusText);
+      if (error.errors) {
+        const errorMessage = 'Data Plan Creation Failed:';
+        this.error(this._generateErrorList(errorMessage, error.errors));
       }
+
       this.error(error);
     }
 

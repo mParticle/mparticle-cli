@@ -27,59 +27,91 @@ For more information, visit: ${pjson.homepage}
     `$ mp planning:events:validate --event=[EVENT] --dataPlanVersion=[DATA_PLAN_VERSION]`,
     `$ mp planning:events:validate --event=[EVENT] --dataPlanVersion=[DATA_PLAN_VERSION] --translateEvents`,
     `$ mp planning:events:validate --eventFile=/path/to/event --dataPlanFile=/path/to/dataplan --versionNumber=[VERSION_NUMBER]`,
-    `$ mp planning:events:validate --eventFile=/path/to/event --dataPlanVersionFile=/path/to/dataplanversio`,
-    `$ mp planning:events:validate --eventFile=/path/to/event --dataPlanVersionFile=/path/to/dataplanversio --translateEvents`
+    `$ mp planning:events:validate --eventFile=/path/to/event --dataPlanVersionFile=/path/to/dataplanversion`,
+    `$ mp planning:events:validate --eventFile=/path/to/event --dataPlanVersionFile=/path/to/dataplanversion --translateEvents`,
   ];
 
   static flags = {
     ...Base.flags,
 
+    workspaceId: flags.integer({
+      description: 'mParticle Workspace ID',
+    }),
+
+    clientId: flags.string({
+      description: 'Client ID for Platform API',
+    }),
+    clientSecret: flags.string({
+      description: 'Client Secret for Platform API',
+    }),
+
     event: flags.string({
       description: 'Event as Stringified JSON',
-      exclusive: ['eventFile']
+      exclusive: ['eventFile'],
     }),
     eventFile: flags.string({
       description: 'Path to saved JSON file of an Event',
-      exclusive: ['event']
+      exclusive: ['event'],
     }),
     dataPlan: flags.string({
       description: 'Data Plan as Stringified JSON',
       exclusive: ['dataPlanFile'],
-      dependsOn: ['versionNumber']
+      dependsOn: ['versionNumber'],
     }),
     dataPlanFile: flags.string({
       description: 'Path to saved JSON file of a Data Plan',
       exclusive: ['dataPlan'],
-      dependsOn: ['versionNumber']
+      dependsOn: ['versionNumber'],
     }),
 
     // required with data plan file str
     versionNumber: flags.integer({
-      description: 'Data Plan Version Number'
+      description: 'Data Plan Version Number',
     }),
 
     dataPlanVersion: flags.string({
-      description: 'Data Plan Version Document as Stringified JSON'
+      description: 'Data Plan Version Document as Stringified JSON',
     }),
     dataPlanVersionFile: flags.string({
-      description: 'Path to saved JSON file of a Data Plan Version'
+      description: 'Path to saved JSON file of a Data Plan Version',
     }),
 
     translateEvents: flags.boolean({
-      description: 'Translate minified event into standard event'
-    })
+      description: 'Translate minified event into standard event',
+    }),
+
+    serverMode: flags.boolean({
+      description: 'Validate using mParticle Server-side validation',
+    }),
+
+    config: flags.string({
+      description: 'mParticle Config JSON File',
+    }),
   };
 
   async run() {
     const { flags } = this.parse(DataPlanEventValidate);
     const {
+      config,
       outFile,
       eventFile,
       dataPlanFile,
       dataPlanVersionFile,
+      serverMode,
       versionNumber,
-      translateEvents
+      translateEvents,
     } = flags;
+
+    let configFile;
+
+    if (config) {
+      const configReader = new JSONFileSync(config);
+      configFile = JSON.parse(configReader.read());
+    }
+
+    let workspaceId = configFile?.global?.workspaceId ?? flags.workspaceId;
+    let clientId = configFile?.global?.clientId ?? flags.clientId;
+    let clientSecret = configFile?.global?.clientSecret ?? flags.clientSecret;
 
     const eventStr = flags.event;
     const dataPlanStr = flags.dataPlan;
@@ -146,13 +178,39 @@ For more information, visit: ${pjson.homepage}
     }
 
     cli.action.start('Validating Event');
-    const dataPlanService = new DataPlanService();
+
+    const options = {
+      serverMode,
+    };
+
+    let credentials;
+
+    if (serverMode) {
+      credentials = {
+        workspaceId,
+        clientId,
+        clientSecret,
+      };
+    }
+
+    const dataPlanService = new DataPlanService(credentials);
+
     let results;
     try {
-      results = dataPlanService.validateEvent(event, dataPlanVersion);
+      results = await dataPlanService.validateEvent(
+        event,
+        dataPlanVersion,
+        options
+      );
     } catch (error) {
       this._debugLog('Validation Service Error', error);
-      this.error('Cannot validate event');
+
+      if (error.errors) {
+        const errorMessage = 'Server Validation Failed:';
+        this.error(this._generateErrorList(errorMessage, error.errors));
+      }
+
+      this.error(error);
     }
 
     if (outFile) {

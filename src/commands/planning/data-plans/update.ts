@@ -22,39 +22,39 @@ export default class DataPlanUpdate extends Base {
   static aliases = ['plan:dp:update'];
 
   static examples = [
-    `$ mp planning:data-plan:update --workspaceId=[WORKSPACE_ID] --dataPlanId=[DATA_PLAN_ID] --dataPlan=[DATA_PLAN]`
+    `$ mp planning:data-plan:update --workspaceId=[WORKSPACE_ID] --dataPlanId=[DATA_PLAN_ID] --dataPlan=[DATA_PLAN]`,
   ];
 
   static flags = {
     ...Base.flags,
 
     workspaceId: flags.integer({
-      description: 'mParticle Workspace ID'
+      description: 'mParticle Workspace ID',
     }),
 
     clientId: flags.string({
-      description: 'Client ID for Platform API'
+      description: 'Client ID for Platform API',
     }),
     clientSecret: flags.string({
-      description: 'Client Secret for Platform API'
+      description: 'Client Secret for Platform API',
     }),
 
     dataPlanId: flags.string({
-      description: 'Data Plan ID'
+      description: 'Data Plan ID',
     }),
 
     dataPlan: flags.string({
       description: 'Data Plan as Stringified JSON',
-      exclusive: ['dataPlanFile']
+      exclusive: ['dataPlanFile'],
     }),
     dataPlanFile: flags.string({
       description: 'Path to saved JSON file of a Data Plan',
-      exclusive: ['dataPlan']
+      exclusive: ['dataPlan'],
     }),
 
     config: flags.string({
-      description: 'mParticle Config JSON File'
-    })
+      description: 'mParticle Config JSON File',
+    }),
   };
 
   async run() {
@@ -63,7 +63,7 @@ export default class DataPlanUpdate extends Base {
 
     const dataPlanStr = flags.dataPlan;
     if (!dataPlanStr && !dataPlanFile) {
-      this.error('Please provide a Data Plan to create');
+      this.error('Please provide a Data Plan to update');
     }
 
     let configFile;
@@ -83,7 +83,7 @@ export default class DataPlanUpdate extends Base {
       dataPlanService = new DataPlanService({
         workspaceId,
         clientId,
-        clientSecret
+        clientSecret,
       });
     } catch (error) {
       this._debugLog('Data Plan Service Init Error', {
@@ -91,8 +91,8 @@ export default class DataPlanUpdate extends Base {
         credentials: {
           workspaceId,
           clientId,
-          clientSecret
-        }
+          clientSecret,
+        },
       });
       this.error(error.message);
     }
@@ -101,7 +101,7 @@ export default class DataPlanUpdate extends Base {
       this.error('Missing Data Plan ID');
     }
 
-    const message = 'Creating Data Plan';
+    const message = 'Upadting Data Plan';
 
     cli.action.start(message);
 
@@ -120,15 +120,14 @@ export default class DataPlanUpdate extends Base {
     }
 
     try {
-      const result = await dataPlanService.updateDataPlan(dataPlanId, dataPlan);
-      this.log(`Updated Data Plan with ID '${result.data_plan_id}'`);
-    } catch (error) {
-      if (logLevel === 'debug') {
-        console.error('Data Plan Update Error', error);
-      }
+      await dataPlanService.updateDataPlan(dataPlanId, dataPlan);
 
-      if (error.response && error.response.statusText) {
-        this.error(error.response.statusText);
+      this.log(`Updated Data Plan with ID '${dataPlanId}'`);
+    } catch (error) {
+      this._debugLog('Data Plan Update Error', error);
+      if (error.errors) {
+        const errorMessage = 'Data Plan Update Failed:';
+        this.error(this._generateErrorList(errorMessage, error.errors));
       }
       this.error(error);
     }

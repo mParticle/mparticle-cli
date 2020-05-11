@@ -22,43 +22,43 @@ export default class DataPlanVersionUpdate extends Base {
   static aliases = ['plan:dpv:update'];
 
   static examples = [
-    `$ mp planning:data-plan-versions:update --workspaceId=[WORKSPACE_ID] --dataPlanId=[DATA_PLAN_ID] --versionNumber=[VERSION_NUMBER] --dataPlanVersion=[DATA_PLAN_VERSION]`
+    `$ mp planning:data-plan-versions:update --workspaceId=[WORKSPACE_ID] --dataPlanId=[DATA_PLAN_ID] --versionNumber=[VERSION_NUMBER] --dataPlanVersion=[DATA_PLAN_VERSION]`,
   ];
 
   static flags = {
     ...Base.flags,
 
     workspaceId: flags.integer({
-      description: 'mParticle Workspace ID'
+      description: 'mParticle Workspace ID',
     }),
 
     clientId: flags.string({
-      description: 'Client ID for Platform API'
+      description: 'Client ID for Platform API',
     }),
     clientSecret: flags.string({
-      description: 'Client Secret for Platform API'
+      description: 'Client Secret for Platform API',
     }),
 
     dataPlanId: flags.string({
-      description: 'Data Plan ID'
+      description: 'Data Plan ID',
     }),
 
     versionNumber: flags.integer({
-      description: 'Data Plan Version Number'
+      description: 'Data Plan Version Number',
     }),
 
     dataPlanVersion: flags.string({
       description: 'Data Plan Version as Stringified JSON',
-      exclusive: ['dataPlanVersionFile']
+      exclusive: ['dataPlanVersionFile'],
     }),
     dataPlanVersionFile: flags.string({
       description: 'Path to saved JSON file of a Data Plan Version',
-      exclusive: ['dataPlanVersion']
+      exclusive: ['dataPlanVersion'],
     }),
 
     config: flags.string({
-      description: 'mParticle Config JSON File'
-    })
+      description: 'mParticle Config JSON File',
+    }),
   };
 
   async run() {
@@ -67,7 +67,7 @@ export default class DataPlanVersionUpdate extends Base {
 
     const dataPlanVersionStr = flags.dataPlanVersion;
     if (!dataPlanVersionStr && !dataPlanVersionFile) {
-      this.error('Please provide a Data Plan Version to create');
+      this.error('Please provide a Data Plan Version to update');
     }
 
     let configFile;
@@ -84,12 +84,16 @@ export default class DataPlanVersionUpdate extends Base {
     let versionNumber =
       configFile?.planningConfig?.versionNumber ?? flags.versionNumber;
 
+    if (!dataPlanId || !versionNumber) {
+      this.error('Missing Data Plan ID and Version Number');
+    }
+
     let dataPlanService: DataPlanService;
     try {
       dataPlanService = new DataPlanService({
         workspaceId,
         clientId,
-        clientSecret
+        clientSecret,
       });
     } catch (error) {
       if (logLevel === 'debug') {
@@ -98,11 +102,7 @@ export default class DataPlanVersionUpdate extends Base {
       this.error(error.message);
     }
 
-    if (!dataPlanId && !versionNumber) {
-      this.error('Missing Data Plan ID and Version Number');
-    }
-
-    const message = 'Creating Data Plan';
+    const message = 'Updating Data Plan Version';
 
     cli.action.start(message);
 
@@ -129,15 +129,17 @@ export default class DataPlanVersionUpdate extends Base {
         versionNumber,
         dataPlanVersion
       );
-      this.log(`Updated Data Plan Version: '${dataPlanId}:v${result.version}'`);
+
+      this.log(
+        `Updated Data Plan Version: '${result.data_plan_id}:v${result.version}'`
+      );
     } catch (error) {
-      if (logLevel === 'debug') {
-        console.error('Data Plan Version Update Error', error);
+      this._debugLog('Data Plan Version Update Error', error);
+      if (error.errors) {
+        const errorMessage = 'Data Plan Version Update Failed:';
+        this.error(this._generateErrorList(errorMessage, error.errors));
       }
 
-      if (error.response && error.response.statusText) {
-        this.error(error.response.statusText);
-      }
       this.error(error);
     }
 

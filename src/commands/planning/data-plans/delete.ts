@@ -20,30 +20,30 @@ export default class DataPlanDelete extends Base {
   static aliases = ['plan:dp:delete'];
 
   static examples = [
-    `$ mp planning:data-plan:delete --workspaceId=[WORKSPACE_ID] --dataPlanId=[DATA_PLAN_ID]`
+    `$ mp planning:data-plan:delete --workspaceId=[WORKSPACE_ID] --dataPlanId=[DATA_PLAN_ID]`,
   ];
 
   static flags = {
     ...Base.flags,
 
     workspaceId: flags.integer({
-      description: 'mParticle Workspace ID'
+      description: 'mParticle Workspace ID',
     }),
 
     clientId: flags.string({
-      description: 'Client ID for Platform API'
+      description: 'Client ID for Platform API',
     }),
     clientSecret: flags.string({
-      description: 'Client Secret for Platform API'
+      description: 'Client Secret for Platform API',
     }),
 
     dataPlanId: flags.string({
-      description: 'Data Plan ID'
+      description: 'Data Plan ID',
     }),
 
     config: flags.string({
-      description: 'mParticle Config JSON File'
-    })
+      description: 'mParticle Config JSON File',
+    }),
   };
 
   async run() {
@@ -67,7 +67,7 @@ export default class DataPlanDelete extends Base {
       dataPlanService = new DataPlanService({
         workspaceId,
         clientId,
-        clientSecret
+        clientSecret,
       });
     } catch (error) {
       if (logLevel === 'debug') {
@@ -86,19 +86,16 @@ export default class DataPlanDelete extends Base {
 
     try {
       const result = await dataPlanService.deleteDataPlan(dataPlanId);
-      if (result) {
-        this.log(`Deleted Data Plan with ID '${dataPlanId}'`);
-      } else {
-        this.log(`Could not delete Data Plan ID: '${dataPlanId}'`);
-      }
+
+      this.log(`Deleted Data Plan with ID '${dataPlanId}'`);
     } catch (error) {
-      if (logLevel === 'debug') {
-        console.error('Data Plan Delete Error', error);
+      this._debugLog('Data Plan Delete Error', error);
+
+      if (error.errors) {
+        const errorMessage = 'Data Plan Delete Failed:';
+        this.error(this._generateErrorList(errorMessage, error.errors));
       }
 
-      if (error.response && error.response.statusText) {
-        this.error(error.response.statusText);
-      }
       this.error(error);
     }
 
