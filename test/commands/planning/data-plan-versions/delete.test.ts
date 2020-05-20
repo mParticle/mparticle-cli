@@ -1,5 +1,6 @@
 import { expect, test } from '@oclif/test';
 import { JSONFileSync } from '../../../../src/utils/JSONFileSync';
+import cli from 'cli-ux';
 import nock from 'nock';
 import { config } from '../../../../src/utils/config';
 
@@ -27,6 +28,7 @@ describe('planning:data-plan-versions:delete', () => {
         .delete(`/${config.dataPlanningPath}/8900/plans/test/versions/5`)
         .reply(200);
     })
+    .stub(cli, 'confirm', () => async () => 'yes')
     .stdout()
     .command([
       'planning:data-plan-versions:delete',
@@ -41,6 +43,20 @@ describe('planning:data-plan-versions:delete', () => {
         "Deleted Data Plan Version: 'test:v5'"
       );
     });
+
+  test
+    .stub(cli, 'confirm', () => async () => 'no')
+    .stdout()
+    .command([
+      'planning:data-plan-versions:delete',
+      '--workspaceId=8900',
+      '--dataPlanId=test',
+      '--versionNumber=5',
+      '--clientId=client',
+      '--clientSecret=secret',
+    ])
+    .exit(2)
+    .it('exits if confirmation is no');
 
   test
     .nock(config.auth.apiRoot, (api) => {
@@ -65,12 +81,13 @@ describe('planning:data-plan-versions:delete', () => {
     .stub(JSONFileSync.prototype, 'read', () =>
       JSON.stringify({
         global: {
-          workspaceId: 8900,
+          workspaceId: '8900',
           clientId: 'client',
           clientSecret: 'secret',
         },
       })
     )
+    .stub(cli, 'confirm', () => async () => 'yes')
     .stdout()
     .command([
       'planning:data-plan-versions:delete',
@@ -88,20 +105,25 @@ describe('planning:data-plan-versions:delete', () => {
     );
 
   test
+    .stub(JSONFileSync.prototype, 'read', () =>
+      JSON.stringify({
+        global: {},
+      })
+    )
     .stdout()
     .command([
       'planning:data-plan-versions:delete',
       '--dataPlanId=test',
       '--versionNumber=5',
     ])
-    .catch('Missing Credentials for generating API Request')
+    .catch('Missing API Credentials')
     .it('returns an error if credentials are missing');
 
   test
     .stub(JSONFileSync.prototype, 'read', () =>
       JSON.stringify({
         global: {
-          workspaceId: 8900,
+          workspaceId: '8900',
           clientId: 'client',
           clientSecret: 'secret',
         },
@@ -116,7 +138,7 @@ describe('planning:data-plan-versions:delete', () => {
     .stub(JSONFileSync.prototype, 'read', () =>
       JSON.stringify({
         global: {
-          workspaceId: 8900,
+          workspaceId: '8900',
           clientId: 'client',
           clientSecret: 'secret',
         },
@@ -157,6 +179,7 @@ describe('planning:data-plan-versions:delete', () => {
           ],
         });
     })
+    .stub(cli, 'confirm', () => async () => 'yes')
     .stdout()
     .command([
       'planning:data-plan-versions:delete',

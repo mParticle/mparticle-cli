@@ -1,10 +1,6 @@
 import { flags } from '@oclif/command';
 import Base from '../../../base';
-import { DataPlanService } from '@mparticle/data-planning-node';
-import { JSONFileSync } from '../../../utils/JSONFileSync';
 import { cli } from 'cli-ux';
-import { DataPlanVersion } from '@mparticle/data-planning-models';
-import { version } from 'punycode';
 
 const pjson = require('../../../../package.json');
 
@@ -14,6 +10,8 @@ export default class DataPlanVersionDelete extends Base {
   Data Plans are comprised of one or more Data Plan Versions.
     
   A Version Document can be fetched by using your account credentials and a --versionNumber and --dataPlanId.
+
+  Note: Delete will NOT read dataPlanId or versionNumber from config as a precaution to prevent accidental deletion of records
   
   For more information, visit: ${pjson.homepage}
   
@@ -28,17 +26,6 @@ export default class DataPlanVersionDelete extends Base {
   static flags = {
     ...Base.flags,
 
-    workspaceId: flags.integer({
-      description: 'mParticle Workspace ID',
-    }),
-
-    clientId: flags.string({
-      description: 'Client ID for Platform API',
-    }),
-    clientSecret: flags.string({
-      description: 'Client Secret for Platform API',
-    }),
-
     dataPlanId: flags.string({
       description: 'Data Plan ID',
     }),
@@ -46,57 +33,34 @@ export default class DataPlanVersionDelete extends Base {
     versionNumber: flags.integer({
       description: 'Data Plan Version Number',
     }),
-
-    config: flags.string({
-      description: 'mParticle Config JSON File',
-    }),
   };
 
   async run() {
     const { flags } = this.parse(DataPlanVersionDelete);
-    const { config, logLevel } = flags;
 
-    let configFile;
-
-    if (config) {
-      const configReader = new JSONFileSync(config);
-      configFile = JSON.parse(configReader.read());
-    }
-
-    let workspaceId = configFile?.global?.workspaceId ?? flags.workspaceId;
-    let clientId = configFile?.global?.clientId ?? flags.clientId;
-    let clientSecret = configFile?.global?.clientSecret ?? flags.clientSecret;
-    let dataPlanId = configFile?.planningConfig?.dataPlanId ?? flags.dataPlanId;
-    let versionNumber =
-      configFile?.planningConfig?.versionNumber ?? flags.versionNumber;
+    // Should not read from config to prevent accidental delete
+    const versionNumber = flags.versionNumber;
+    const dataPlanId = flags.dataPlanId;
 
     if (!dataPlanId || !versionNumber) {
       this.error('Missing Data Plan ID and Version Number');
     }
 
-    let dataPlanService: DataPlanService;
-    try {
-      dataPlanService = new DataPlanService({
-        workspaceId,
-        clientId,
-        clientSecret,
-      });
-    } catch (error) {
-      if (logLevel === 'debug') {
-        console.error(error);
-      }
-      this.error(error.message);
+    const confirmDelete = await cli.confirm('Please confirm deletion [y/n]');
+
+    if (!confirmDelete) {
+      cli.action.stop;
+      this.exit(0);
     }
+
+    const dataPlanService = this.getDataPlanService(this.credentials);
 
     const message = 'Deleting Data Plan Version';
 
     cli.action.start(message);
 
     try {
-      const result = await dataPlanService.deleteDataPlanVersion(
-        dataPlanId,
-        versionNumber
-      );
+      await dataPlanService.deleteDataPlanVersion(dataPlanId, versionNumber);
       this.log(`Deleted Data Plan Version: '${dataPlanId}:v${versionNumber}'`);
     } catch (error) {
       this._debugLog('Data Plan Version Delete Error', error);

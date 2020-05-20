@@ -65,7 +65,7 @@ describe('planning:data-plans:fetch', () => {
     .stub(JSONFileSync.prototype, 'read', () =>
       JSON.stringify({
         global: {
-          workspaceId: 8900,
+          workspaceId: '8900',
           clientId: 'client',
           clientSecret: 'secret',
         },
@@ -109,7 +109,7 @@ describe('planning:data-plans:fetch', () => {
     .stub(JSONFileSync.prototype, 'read', () =>
       JSON.stringify({
         global: {
-          workspaceId: 8900,
+          workspaceId: '8900',
           clientId: 'client',
           clientSecret: 'secret',
         },
@@ -127,16 +127,21 @@ describe('planning:data-plans:fetch', () => {
     });
 
   test
+    .stub(JSONFileSync.prototype, 'read', () =>
+      JSON.stringify({
+        global: {},
+      })
+    )
     .stdout()
     .command(['planning:data-plans:fetch', '--dataPlanId=foo'])
-    .catch('Missing Credentials for generating API Request')
+    .catch('Missing API Credentials')
     .it('returns an error if credentials are missing');
 
   test
     .stub(JSONFileSync.prototype, 'read', () =>
       JSON.stringify({
         global: {
-          workspaceId: 8900,
+          workspaceId: '8900',
           clientId: 'client',
           clientSecret: 'secret',
         },

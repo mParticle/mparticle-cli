@@ -1,6 +1,5 @@
 import { flags } from '@oclif/command';
 import Base from '../../../base';
-import { DataPlanService } from '@mparticle/data-planning-node';
 import { JSONFileSync } from '../../../utils/JSONFileSync';
 import { cli } from 'cli-ux';
 
@@ -26,59 +25,23 @@ For more information, visit: ${pjson.homepage}
   static flags = {
     ...Base.flags,
 
-    workspaceId: flags.integer({
-      description: 'mParticle Workspace ID',
-    }),
-
     dataPlanId: flags.string({
       description: 'Data Plan ID',
-    }),
-
-    clientId: flags.string({
-      description: 'Client ID for Platform API',
-    }),
-    clientSecret: flags.string({
-      description: 'Client Secret for Platform API',
-    }),
-
-    config: flags.string({
-      description: 'mParticle Config JSON File',
     }),
   };
 
   async run() {
     const { flags } = this.parse(DataPlanFetch);
-    const { outFile, config, logLevel } = flags;
+    const { outFile } = flags;
 
-    let configFile;
-
-    if (config) {
-      const configReader = new JSONFileSync(config);
-      configFile = JSON.parse(configReader.read());
-    }
-
-    let workspaceId = configFile?.global?.workspaceId ?? flags.workspaceId;
-    let clientId = configFile?.global?.clientId ?? flags.clientId;
-    let clientSecret = configFile?.global?.clientSecret ?? flags.clientSecret;
-    let dataPlanId = configFile?.planningConfig?.dataPlanId ?? flags.dataPlanId;
-
-    let dataPlanService: DataPlanService;
-    try {
-      dataPlanService = new DataPlanService({
-        workspaceId,
-        clientId,
-        clientSecret,
-      });
-    } catch (error) {
-      if (logLevel === 'debug') {
-        console.error(error);
-      }
-      this.error(error.message);
-    }
+    const dataPlanId =
+      flags.dataPlanId ?? this.mPConfig.planningConfig?.dataPlanId;
 
     if (!dataPlanId) {
       this.error('Missing Data Plan ID');
     }
+
+    const dataPlanService = this.getDataPlanService(this.credentials);
 
     let result;
 
@@ -104,9 +67,13 @@ For more information, visit: ${pjson.homepage}
         const writer = new JSONFileSync(outFile);
         writer.write(result);
       } catch (error) {
-        if (logLevel === 'debug') {
-          console.error(error);
-        }
+        this._debugLog('Cannot save Data Plan to file', {
+          error,
+          response: {
+            outFile,
+            dataPlan: result,
+          },
+        });
         this.error(`Cannot write output to ${outFile}`);
       }
     } else {

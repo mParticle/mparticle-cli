@@ -1,7 +1,5 @@
 import { flags } from '@oclif/command';
 import Base from '../../../base';
-import { DataPlanService } from '@mparticle/data-planning-node';
-import { JSONFileSync } from '../../../utils/JSONFileSync';
 import { cli } from 'cli-ux';
 
 const pjson = require('../../../../package.json');
@@ -12,6 +10,8 @@ export default class DataPlanDelete extends Base {
   Data Plans are comprised of one or more Data Plan Versions.
     
   A Data Plan can be fetched using your account credentials and using a valid --dataPlanId
+
+  Note: Delete will NOT read dataPlanId from config as a precaution to prevent accidental deletion of records
   
   For more information, visit: ${pjson.homepage}
   
@@ -26,66 +26,36 @@ export default class DataPlanDelete extends Base {
   static flags = {
     ...Base.flags,
 
-    workspaceId: flags.integer({
-      description: 'mParticle Workspace ID',
-    }),
-
-    clientId: flags.string({
-      description: 'Client ID for Platform API',
-    }),
-    clientSecret: flags.string({
-      description: 'Client Secret for Platform API',
-    }),
-
     dataPlanId: flags.string({
       description: 'Data Plan ID',
-    }),
-
-    config: flags.string({
-      description: 'mParticle Config JSON File',
     }),
   };
 
   async run() {
     const { flags } = this.parse(DataPlanDelete);
-    const { config, logLevel } = flags;
 
-    let configFile;
-
-    if (config) {
-      const configReader = new JSONFileSync(config);
-      configFile = JSON.parse(configReader.read());
-    }
-
-    let workspaceId = configFile?.global?.workspaceId ?? flags.workspaceId;
-    let clientId = configFile?.global?.clientId ?? flags.clientId;
-    let clientSecret = configFile?.global?.clientSecret ?? flags.clientSecret;
-    let dataPlanId = configFile?.planningConfig?.dataPlanId ?? flags.dataPlanId;
-
-    let dataPlanService: DataPlanService;
-    try {
-      dataPlanService = new DataPlanService({
-        workspaceId,
-        clientId,
-        clientSecret,
-      });
-    } catch (error) {
-      if (logLevel === 'debug') {
-        console.error(error);
-      }
-      this.error(error.message);
-    }
+    // Should not read from config to prevent accidental delete
+    const dataPlanId = flags.dataPlanId;
 
     if (!dataPlanId) {
       this.error('Missing Data Plan ID');
     }
+
+    const confirmDelete = await cli.confirm('Please confirm deletion [y/n]');
+
+    if (!confirmDelete) {
+      cli.action.stop;
+      this.exit(0);
+    }
+
+    const dataPlanService = this.getDataPlanService(this.credentials);
 
     const message = 'Deleting Data Plan';
 
     cli.action.start(message);
 
     try {
-      const result = await dataPlanService.deleteDataPlan(dataPlanId);
+      await dataPlanService.deleteDataPlan(dataPlanId);
 
       this.log(`Deleted Data Plan with ID '${dataPlanId}'`);
     } catch (error) {

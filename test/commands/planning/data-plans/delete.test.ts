@@ -1,7 +1,8 @@
 import { expect, test } from '@oclif/test';
-import { JSONFileSync } from '../../../../src/utils/JSONFileSync';
+import cli from 'cli-ux';
 import nock from 'nock';
 import { config } from '../../../../src/utils/config';
+import { JSONFileSync } from '../../../../src/utils/JSONFileSync';
 
 // Prevent CLI from hitting the interwebs
 nock.disableNetConnect();
@@ -25,6 +26,7 @@ describe('planning:data-plans:delete', () => {
     .nock(config.apiRoot, (api) => {
       api.delete(`/${config.dataPlanningPath}/8900/plans/test`).reply(200);
     })
+    .stub(cli, 'confirm', () => async () => 'yes')
     .stdout()
     .command([
       'planning:data-plans:delete',
@@ -36,6 +38,19 @@ describe('planning:data-plans:delete', () => {
     .it('returns a success message', (ctx) => {
       expect(ctx.stdout.trim()).to.equals("Deleted Data Plan with ID 'test'");
     });
+
+  test
+    .stub(cli, 'confirm', () => async () => 'no')
+    .stdout()
+    .command([
+      'planning:data-plans:delete',
+      '--workspaceId=8900',
+      '--dataPlanId=test',
+      '--clientId=client',
+      '--clientSecret=secret',
+    ])
+    .exit(2)
+    .it('exits if confirmation is no');
 
   test
     .nock(config.auth.apiRoot, (api) => {
@@ -58,12 +73,13 @@ describe('planning:data-plans:delete', () => {
     .stub(JSONFileSync.prototype, 'read', () =>
       JSON.stringify({
         global: {
-          workspaceId: 8900,
+          workspaceId: '8900',
           clientId: 'client',
           clientSecret: 'secret',
         },
       })
     )
+    .stub(cli, 'confirm', () => async () => 'yes')
     .stdout()
     .command([
       'planning:data-plans:delete',
@@ -78,16 +94,21 @@ describe('planning:data-plans:delete', () => {
     );
 
   test
+    .stub(JSONFileSync.prototype, 'read', () =>
+      JSON.stringify({
+        global: {},
+      })
+    )
     .stdout()
     .command(['planning:data-plans:delete', '--dataPlanId='])
-    .catch('Missing Credentials for generating API Request')
+    .catch('Missing API Credentials')
     .it('returns an error if credentials are missing');
 
   test
     .stub(JSONFileSync.prototype, 'read', () =>
       JSON.stringify({
         global: {
-          workspaceId: 8900,
+          workspaceId: '8900',
           clientId: 'client',
           clientSecret: 'secret',
         },
@@ -122,6 +143,7 @@ describe('planning:data-plans:delete', () => {
         ],
       });
     })
+    .stub(cli, 'confirm', () => async () => 'yes')
     .stdout()
     .command([
       'planning:data-plans:delete',

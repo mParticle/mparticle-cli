@@ -49,9 +49,12 @@ describe('planning:events:validate', () => {
     .stdout()
     .command([
       'planning:events:validate',
+      '--workspaceId=8900',
       '--event=' + JSON.stringify(sampleEvent),
       '--dataPlan=' + JSON.stringify(sampleDataPlan),
       '--versionNumber=1',
+      '--clientId=client',
+      '--clientSecret=secret',
     ])
     .it('validates an event with a Data Plan and Version Number', (ctx) => {
       expect(ctx.stdout.trim()).to.equals(
@@ -62,8 +65,11 @@ describe('planning:events:validate', () => {
     .stdout()
     .command([
       'planning:events:validate',
+      '--workspaceId=8900',
       '--event=' + JSON.stringify(sampleEvent),
       '--dataPlanVersion=' + JSON.stringify(sampleVersion),
+      '--clientId=client',
+      '--clientSecret=secret',
     ])
     .it('validates an event with a Data Plan Version', (ctx) => {
       expect(ctx.stdout.trim()).to.equals(
@@ -74,9 +80,12 @@ describe('planning:events:validate', () => {
     .stdout()
     .command([
       'planning:events:validate',
+      '--workspaceId=8900',
       '--event=' + JSON.stringify(minifiedEvent),
       '--dataPlanVersion=' + JSON.stringify(sampleVersion),
       '--translateEvents',
+      '--clientId=client',
+      '--clientSecret=secret',
     ])
     .it('validates a minified event', (ctx) => {
       expect(ctx.stdout.trim()).to.equals(
@@ -85,14 +94,22 @@ describe('planning:events:validate', () => {
     });
   test
     .stdout()
-    .command(['planning:events:validate'])
+    .command([
+      'planning:events:validate',
+      '--workspaceId=8900',
+      '--clientId=client',
+      '--clientSecret=secret',
+    ])
     .catch('Please provide an event')
     .it('returns an error when an event is missing');
   test
     .stdout()
     .command([
       'planning:events:validate',
+      '--workspaceId=8900',
       '--event=' + JSON.stringify(sampleEvent),
+      '--clientId=client',
+      '--clientSecret=secret',
     ])
     .catch('Please provide a Data Plan or Version Document to Validate against')
     .it('returns an error when data plan is missing');

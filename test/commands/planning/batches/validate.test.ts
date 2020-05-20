@@ -53,9 +53,12 @@ describe('planning:batches:validate', () => {
     .stdout()
     .command([
       'planning:batches:validate',
+      '--workspaceId=8900',
       '--batch=' + JSON.stringify(sampleBatch),
       '--dataPlan=' + JSON.stringify(sampleDataPlan),
       '--versionNumber=1',
+      '--clientId=client',
+      '--clientSecret=secret',
     ])
     .it('validates a batch with a Data Plan and Version Number', (ctx) => {
       expect(ctx.stdout.trim()).to.equals(
@@ -67,8 +70,11 @@ describe('planning:batches:validate', () => {
     .stdout()
     .command([
       'planning:batches:validate',
+      '--workspaceId=8900',
       '--batch=' + JSON.stringify(sampleBatch),
       '--dataPlanVersion=' + JSON.stringify(sampleVersion),
+      '--clientId=client',
+      '--clientSecret=secret',
     ])
     .it('validates a batch with a Data Plan Version', (ctx) => {
       expect(ctx.stdout.trim()).to.equals(
@@ -78,7 +84,12 @@ describe('planning:batches:validate', () => {
 
   test
     .stdout()
-    .command(['planning:batches:validate'])
+    .command([
+      'planning:batches:validate',
+      '--workspaceId=8900',
+      '--clientId=client',
+      '--clientSecret=secret',
+    ])
     .catch('Please provide a batch')
     .it('returns an error when batch is missing');
 
@@ -86,7 +97,10 @@ describe('planning:batches:validate', () => {
     .stdout()
     .command([
       'planning:batches:validate',
+      '--workspaceId=8900',
       '--batch=' + JSON.stringify(sampleBatch),
+      '--clientId=client',
+      '--clientSecret=secret',
     ])
     .catch('Please provide a Data Plan or Version Document to Validate against')
     .it('returns an error when data plan is missing');

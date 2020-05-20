@@ -1,6 +1,5 @@
 import { flags } from '@oclif/command';
 import Base from '../../../base';
-import { DataPlanService } from '@mparticle/data-planning-node';
 import { JSONFileSync } from '../../../utils/JSONFileSync';
 import { getObject } from '../../../utils/getObject';
 import { cli } from 'cli-ux';
@@ -33,17 +32,6 @@ For more information, visit: ${pjson.homepage}
 
   static flags = {
     ...Base.flags,
-
-    workspaceId: flags.integer({
-      description: 'mParticle Workspace ID',
-    }),
-
-    clientId: flags.string({
-      description: 'Client ID for Platform API',
-    }),
-    clientSecret: flags.string({
-      description: 'Client Secret for Platform API',
-    }),
 
     event: flags.string({
       description: 'Event as Stringified JSON',
@@ -83,39 +71,26 @@ For more information, visit: ${pjson.homepage}
     serverMode: flags.boolean({
       description: 'Validate using mParticle Server-side validation',
     }),
-
-    config: flags.string({
-      description: 'mParticle Config JSON File',
-    }),
   };
 
   async run() {
     const { flags } = this.parse(DataPlanEventValidate);
     const {
-      config,
       outFile,
       eventFile,
       dataPlanFile,
-      dataPlanVersionFile,
       serverMode,
       versionNumber,
       translateEvents,
     } = flags;
 
-    let configFile;
-
-    if (config) {
-      const configReader = new JSONFileSync(config);
-      configFile = JSON.parse(configReader.read());
-    }
-
-    let workspaceId = configFile?.global?.workspaceId ?? flags.workspaceId;
-    let clientId = configFile?.global?.clientId ?? flags.clientId;
-    let clientSecret = configFile?.global?.clientSecret ?? flags.clientSecret;
-
     const eventStr = flags.event;
     const dataPlanStr = flags.dataPlan;
+
     const dataPlanVersionStr = flags.dataPlanVersion;
+    let dataPlanVersionFile =
+      flags.dataPlanVersionFile ??
+      this.mPConfig.planningConfig?.dataPlanVersionFile;
 
     if (!eventStr && !eventFile) {
       this.error('Please provide an event');
@@ -183,17 +158,7 @@ For more information, visit: ${pjson.homepage}
       serverMode,
     };
 
-    let credentials;
-
-    if (serverMode) {
-      credentials = {
-        workspaceId,
-        clientId,
-        clientSecret,
-      };
-    }
-
-    const dataPlanService = new DataPlanService(credentials);
+    const dataPlanService = this.getDataPlanService(this.credentials);
 
     let results;
     try {

@@ -74,7 +74,7 @@ describe('planning:data-plan-versions:create', () => {
     .stub(JSONFileSync.prototype, 'read', () =>
       JSON.stringify({
         global: {
-          workspaceId: 8900,
+          workspaceId: '8900',
           clientId: 'client',
           clientSecret: 'secret',
         },
@@ -97,29 +97,38 @@ describe('planning:data-plan-versions:create', () => {
     );
 
   test
+    .stub(JSONFileSync.prototype, 'read', () =>
+      JSON.stringify({
+        global: {
+          clientSecret: 'secret',
+        },
+      })
+    )
     .stdout()
     .command([
       'planning:data-plan-versions:create',
       '--dataPlanId=test',
       '--dataPlanVersion=' + JSON.stringify(sampleDataPlanVersion),
     ])
-    .catch('Missing Credentials for generating API Request')
+    .catch('Missing API Credentials')
     .it('returns an error if credentials are missing');
 
   test
     .stub(JSONFileSync.prototype, 'read', () =>
       JSON.stringify({
         global: {
-          orgId: 1234,
-          accountId: 4567,
-          workspaceId: 8900,
+          workspaceId: '8900',
           clientId: 'client',
           clientSecret: 'secret',
         },
       })
     )
     .stdout()
-    .command(['planning:data-plan-versions:create', '--config=mp.config.json'])
+    .command([
+      'planning:data-plan-versions:create',
+      '--config=mp.config.json',
+      '--dataPlanId=test',
+    ])
     .catch('Please provide a Data Plan Version to create')
     .it('returns an error if data plan version is missing');
 

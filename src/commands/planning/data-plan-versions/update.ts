@@ -1,7 +1,6 @@
 import { flags } from '@oclif/command';
 import Base from '../../../base';
 import { DataPlanService } from '@mparticle/data-planning-node';
-import { JSONFileSync } from '../../../utils/JSONFileSync';
 import { getObject } from '../../../utils/getObject';
 import { cli } from 'cli-ux';
 import { DataPlanVersion } from '@mparticle/data-planning-models';
@@ -28,17 +27,6 @@ export default class DataPlanVersionUpdate extends Base {
   static flags = {
     ...Base.flags,
 
-    workspaceId: flags.integer({
-      description: 'mParticle Workspace ID',
-    }),
-
-    clientId: flags.string({
-      description: 'Client ID for Platform API',
-    }),
-    clientSecret: flags.string({
-      description: 'Client Secret for Platform API',
-    }),
-
     dataPlanId: flags.string({
       description: 'Data Plan ID',
     }),
@@ -51,56 +39,35 @@ export default class DataPlanVersionUpdate extends Base {
       description: 'Data Plan Version as Stringified JSON',
       exclusive: ['dataPlanVersionFile'],
     }),
+
     dataPlanVersionFile: flags.string({
       description: 'Path to saved JSON file of a Data Plan Version',
       exclusive: ['dataPlanVersion'],
-    }),
-
-    config: flags.string({
-      description: 'mParticle Config JSON File',
     }),
   };
 
   async run() {
     const { flags } = this.parse(DataPlanVersionUpdate);
-    const { dataPlanVersionFile, config, logLevel } = flags;
+
+    const versionNumber =
+      flags.versionNumber ?? this.mPConfig.planningConfig?.versionNumber;
+    const dataPlanId =
+      flags.dataPlanId ?? this.mPConfig.planningConfig?.dataPlanId;
 
     const dataPlanVersionStr = flags.dataPlanVersion;
-    if (!dataPlanVersionStr && !dataPlanVersionFile) {
-      this.error('Please provide a Data Plan Version to update');
-    }
-
-    let configFile;
-
-    if (config) {
-      const configReader = new JSONFileSync(config);
-      configFile = JSON.parse(configReader.read());
-    }
-
-    let workspaceId = configFile?.global?.workspaceId ?? flags.workspaceId;
-    let clientId = configFile?.global?.clientId ?? flags.clientId;
-    let clientSecret = configFile?.global?.clientSecret ?? flags.clientSecret;
-    let dataPlanId = configFile?.planningConfig?.dataPlanId ?? flags.dataPlanId;
-    let versionNumber =
-      configFile?.planningConfig?.versionNumber ?? flags.versionNumber;
+    let dataPlanVersionFile =
+      flags.dataPlanVersionFile ??
+      this.mPConfig.planningConfig?.dataPlanVersionFile;
 
     if (!dataPlanId || !versionNumber) {
       this.error('Missing Data Plan ID and Version Number');
     }
 
-    let dataPlanService: DataPlanService;
-    try {
-      dataPlanService = new DataPlanService({
-        workspaceId,
-        clientId,
-        clientSecret,
-      });
-    } catch (error) {
-      if (logLevel === 'debug') {
-        console.error(error);
-      }
-      this.error(error.message);
+    if (!dataPlanVersionStr && !dataPlanVersionFile) {
+      this.error('Please provide a Data Plan Version to update');
     }
+
+    const dataPlanService = this.getDataPlanService(this.credentials);
 
     const message = 'Updating Data Plan Version';
 

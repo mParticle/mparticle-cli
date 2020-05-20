@@ -69,7 +69,7 @@ describe('planning:data-plans:update', () => {
     .stub(JSONFileSync.prototype, 'read', () =>
       JSON.stringify({
         global: {
-          workspaceId: 8900,
+          workspaceId: '8900',
           clientId: 'client',
           clientSecret: 'secret',
         },
@@ -90,27 +90,36 @@ describe('planning:data-plans:update', () => {
     );
 
   test
+    .stub(JSONFileSync.prototype, 'read', () =>
+      JSON.stringify({
+        global: {},
+      })
+    )
     .stdout()
     .command([
       'planning:data-plans:update',
       '--dataPlanId=test',
       '--dataPlan=' + JSON.stringify(updatedDataPlan),
     ])
-    .catch('Missing Credentials for generating API Request')
+    .catch('Missing API Credentials')
     .it('returns an error if credentials are missing');
 
   test
     .stub(JSONFileSync.prototype, 'read', () =>
       JSON.stringify({
         global: {
-          workspaceId: 8900,
+          workspaceId: '8900',
           clientId: 'client',
           clientSecret: 'secret',
         },
       })
     )
     .stdout()
-    .command(['planning:data-plans:update', '--config=mp.config.json'])
+    .command([
+      'planning:data-plans:update',
+      '--dataPlanId=test',
+      '--config=mp.config.json',
+    ])
     .catch('Please provide a Data Plan to update')
     .it('returns an error if data plan is missing');
 
