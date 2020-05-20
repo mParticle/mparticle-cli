@@ -40,7 +40,7 @@ $ npm install -g @mparticle/cli
 $ mp COMMAND
 running command...
 $ mp (-v|--version|version)
-@mparticle/cli/1.0.4-alpha.0 darwin-x64 node-v10.15.3
+@mparticle/cli/1.0.4 darwin-x64 node-v10.15.3
 $ mp --help [COMMAND]
 USAGE
   $ mp COMMAND
@@ -54,6 +54,7 @@ USAGE
 * [`mp autocomplete [SHELL]`](#mp-autocomplete-shell)
 * [`mp help [COMMAND]`](#mp-help-command)
 * [`mp planning:batches:validate`](#mp-planningbatchesvalidate)
+* [`mp planning:data-plan-versions:_data-plan-version-base`](#mp-planningdata-plan-versions_data-plan-version-base)
 * [`mp planning:data-plan-versions:create`](#mp-planningdata-plan-versionscreate)
 * [`mp planning:data-plan-versions:delete`](#mp-planningdata-plan-versionsdelete)
 * [`mp planning:data-plan-versions:fetch`](#mp-planningdata-plan-versionsfetch)
@@ -147,7 +148,24 @@ EXAMPLES
   $ mp planning:batches:validate --batchFile=/path/to/batch --dataPlanVersion=/path/to/dataplanversion
 ```
 
-_See code: [src/commands/planning/batches/validate.ts](https://github.com/mParticle/mparticle-cli/blob/v1.0.4-alpha.0/src/commands/planning/batches/validate.ts)_
+_See code: [src/commands/planning/batches/validate.ts](https://github.com/mParticle/mparticle-cli/blob/v1.0.4/src/commands/planning/batches/validate.ts)_
+
+## `mp planning:data-plan-versions:_data-plan-version-base`
+
+```
+USAGE
+  $ mp planning:data-plan-versions:_data-plan-version-base
+
+OPTIONS
+  -o, --outFile=outFile                    (optional) Output file for results (defaults to standard output)
+  --clientId=clientId                      Client ID for Platform API
+  --clientSecret=clientSecret              Client Secret for Platform API
+  --config=config                          mParticle Config JSON File
+  --logLevel=error|warn|info|debug|silent  [default: info] Log Level
+  --workspaceId=workspaceId                mParticle Workspace ID
+```
+
+_See code: [src/commands/planning/data-plan-versions/_data-plan-version-base.ts](https://github.com/mParticle/mparticle-cli/blob/v1.0.4/src/commands/planning/data-plan-versions/_data-plan-version-base.ts)_
 
 ## `mp planning:data-plan-versions:create`
 
@@ -183,7 +201,7 @@ EXAMPLE
   --dataPlan=[DATA_PLAN]
 ```
 
-_See code: [src/commands/planning/data-plan-versions/create.ts](https://github.com/mParticle/mparticle-cli/blob/v1.0.4-alpha.0/src/commands/planning/data-plan-versions/create.ts)_
+_See code: [src/commands/planning/data-plan-versions/create.ts](https://github.com/mParticle/mparticle-cli/blob/v1.0.4/src/commands/planning/data-plan-versions/create.ts)_
 
 ## `mp planning:data-plan-versions:delete`
 
@@ -207,6 +225,9 @@ DESCRIPTION
   Data Plans are comprised of one or more Data Plan Versions.
     
      A Version Document can be fetched by using your account credentials and a --versionNumber and --dataPlanId.
+
+     Note: Delete will NOT read dataPlanId or versionNumber from config as a precaution to prevent accidental deletion 
+  of records
   
      For more information, visit: https://github.com/mParticle/mparticle-cli
 
@@ -218,7 +239,7 @@ EXAMPLE
   --versionNumber=[VERSION_NUMBER]
 ```
 
-_See code: [src/commands/planning/data-plan-versions/delete.ts](https://github.com/mParticle/mparticle-cli/blob/v1.0.4-alpha.0/src/commands/planning/data-plan-versions/delete.ts)_
+_See code: [src/commands/planning/data-plan-versions/delete.ts](https://github.com/mParticle/mparticle-cli/blob/v1.0.4/src/commands/planning/data-plan-versions/delete.ts)_
 
 ## `mp planning:data-plan-versions:fetch`
 
@@ -253,7 +274,7 @@ EXAMPLE
   --workspaceId=[WORKSPACE_ID]
 ```
 
-_See code: [src/commands/planning/data-plan-versions/fetch.ts](https://github.com/mParticle/mparticle-cli/blob/v1.0.4-alpha.0/src/commands/planning/data-plan-versions/fetch.ts)_
+_See code: [src/commands/planning/data-plan-versions/fetch.ts](https://github.com/mParticle/mparticle-cli/blob/v1.0.4/src/commands/planning/data-plan-versions/fetch.ts)_
 
 ## `mp planning:data-plan-versions:update`
 
@@ -290,7 +311,7 @@ EXAMPLE
   --versionNumber=[VERSION_NUMBER] --dataPlanVersion=[DATA_PLAN_VERSION]
 ```
 
-_See code: [src/commands/planning/data-plan-versions/update.ts](https://github.com/mParticle/mparticle-cli/blob/v1.0.4-alpha.0/src/commands/planning/data-plan-versions/update.ts)_
+_See code: [src/commands/planning/data-plan-versions/update.ts](https://github.com/mParticle/mparticle-cli/blob/v1.0.4/src/commands/planning/data-plan-versions/update.ts)_
 
 ## `mp planning:data-plans:create`
 
@@ -324,7 +345,7 @@ EXAMPLE
   $ mp planning:data-plan:create --workspaceId=[WORKSPACE_ID] --dataPlan=[DATA_PLAN]
 ```
 
-_See code: [src/commands/planning/data-plans/create.ts](https://github.com/mParticle/mparticle-cli/blob/v1.0.4-alpha.0/src/commands/planning/data-plans/create.ts)_
+_See code: [src/commands/planning/data-plans/create.ts](https://github.com/mParticle/mparticle-cli/blob/v1.0.4/src/commands/planning/data-plans/create.ts)_
 
 ## `mp planning:data-plans:delete`
 
@@ -347,6 +368,8 @@ DESCRIPTION
   Data Plans are comprised of one or more Data Plan Versions.
     
      A Data Plan can be fetched using your account credentials and using a valid --dataPlanId
+
+     Note: Delete will NOT read dataPlanId from config as a precaution to prevent accidental deletion of records
   
      For more information, visit: https://github.com/mParticle/mparticle-cli
 
@@ -357,7 +380,7 @@ EXAMPLE
   $ mp planning:data-plan:delete --workspaceId=[WORKSPACE_ID] --dataPlanId=[DATA_PLAN_ID]
 ```
 
-_See code: [src/commands/planning/data-plans/delete.ts](https://github.com/mParticle/mparticle-cli/blob/v1.0.4-alpha.0/src/commands/planning/data-plans/delete.ts)_
+_See code: [src/commands/planning/data-plans/delete.ts](https://github.com/mParticle/mparticle-cli/blob/v1.0.4/src/commands/planning/data-plans/delete.ts)_
 
 ## `mp planning:data-plans:fetch`
 
@@ -390,7 +413,7 @@ EXAMPLE
   $ mp planning:data-plan:fetch --dataPlanId=[DATA_PLAN_ID] --workspaceId=[WORKSPACE_ID]
 ```
 
-_See code: [src/commands/planning/data-plans/fetch.ts](https://github.com/mParticle/mparticle-cli/blob/v1.0.4-alpha.0/src/commands/planning/data-plans/fetch.ts)_
+_See code: [src/commands/planning/data-plans/fetch.ts](https://github.com/mParticle/mparticle-cli/blob/v1.0.4/src/commands/planning/data-plans/fetch.ts)_
 
 ## `mp planning:data-plans:update`
 
@@ -425,7 +448,7 @@ EXAMPLE
   $ mp planning:data-plan:update --workspaceId=[WORKSPACE_ID] --dataPlanId=[DATA_PLAN_ID] --dataPlan=[DATA_PLAN]
 ```
 
-_See code: [src/commands/planning/data-plans/update.ts](https://github.com/mParticle/mparticle-cli/blob/v1.0.4-alpha.0/src/commands/planning/data-plans/update.ts)_
+_See code: [src/commands/planning/data-plans/update.ts](https://github.com/mParticle/mparticle-cli/blob/v1.0.4/src/commands/planning/data-plans/update.ts)_
 
 ## `mp planning:events:validate`
 
@@ -473,5 +496,5 @@ EXAMPLES
   --translateEvents
 ```
 
-_See code: [src/commands/planning/events/validate.ts](https://github.com/mParticle/mparticle-cli/blob/v1.0.4-alpha.0/src/commands/planning/events/validate.ts)_
+_See code: [src/commands/planning/events/validate.ts](https://github.com/mParticle/mparticle-cli/blob/v1.0.4/src/commands/planning/events/validate.ts)_
 <!-- commandsstop -->
