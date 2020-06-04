@@ -127,15 +127,24 @@ describe('planning:data-plans:fetch', () => {
     });
 
   test
-    .stub(JSONFileSync.prototype, 'read', () =>
-      JSON.stringify({
-        global: {},
-      })
-    )
     .stdout()
     .command(['planning:data-plans:fetch', '--dataPlanId=foo'])
     .catch('Missing API Credentials')
     .it('returns an error if credentials are missing');
+
+  test
+    .stub(JSONFileSync.prototype, 'read', () =>
+      JSON.stringify({
+        global: {
+          workspaceId: '12345',
+          clientSecret: 'XXXXXXX',
+        },
+      })
+    )
+    .stdout()
+    .command(['planning:data-plans:fetch', '--dataPlanId=test'])
+    .catch("data.global should have required property 'clientId'")
+    .it('returns a validation error if config file has invalid JSON');
 
   test
     .stub(JSONFileSync.prototype, 'read', () =>

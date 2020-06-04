@@ -90,11 +90,6 @@ describe('planning:data-plans:update', () => {
     );
 
   test
-    .stub(JSONFileSync.prototype, 'read', () =>
-      JSON.stringify({
-        global: {},
-      })
-    )
     .stdout()
     .command([
       'planning:data-plans:update',
@@ -103,6 +98,23 @@ describe('planning:data-plans:update', () => {
     ])
     .catch('Missing API Credentials')
     .it('returns an error if credentials are missing');
+
+  test
+    .stub(JSONFileSync.prototype, 'read', () =>
+      JSON.stringify({
+        global: {
+          workspaceId: 12345,
+        },
+      })
+    )
+    .stdout()
+    .command([
+      'planning:data-plans:update',
+      '--dataPlanId=test',
+      '--dataPlan=' + JSON.stringify(updatedDataPlan),
+    ])
+    .catch('data.global.workspaceId should be string')
+    .it('returns a validation error if config file has invalid JSON');
 
   test
     .stub(JSONFileSync.prototype, 'read', () =>

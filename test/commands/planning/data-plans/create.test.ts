@@ -86,6 +86,15 @@ describe('planning:data-plans:create', () => {
     );
 
   test
+    .stdout()
+    .command([
+      'planning:data-plans:create',
+      '--dataPlan=' + JSON.stringify(sampleDataPlan),
+    ])
+    .catch('Missing API Credentials')
+    .it('returns an error if credentials are missing');
+
+  test
     .stub(JSONFileSync.prototype, 'read', () =>
       JSON.stringify({
         global: {},
@@ -96,8 +105,8 @@ describe('planning:data-plans:create', () => {
       'planning:data-plans:create',
       '--dataPlan=' + JSON.stringify(sampleDataPlan),
     ])
-    .catch('Missing API Credentials')
-    .it('returns an error if credentials are missing');
+    .catch("data.global should have required property 'workspaceId'")
+    .it('returns a validation error if config file has invalid JSON');
 
   test
     .stub(JSONFileSync.prototype, 'read', () =>

@@ -94,15 +94,24 @@ describe('planning:data-plans:delete', () => {
     );
 
   test
-    .stub(JSONFileSync.prototype, 'read', () =>
-      JSON.stringify({
-        global: {},
-      })
-    )
     .stdout()
     .command(['planning:data-plans:delete', '--dataPlanId='])
     .catch('Missing API Credentials')
     .it('returns an error if credentials are missing');
+
+  test
+    .stub(JSONFileSync.prototype, 'read', () =>
+      JSON.stringify({
+        global: {
+          workspaceId: '12345',
+          clientId: 213423,
+        },
+      })
+    )
+    .stdout()
+    .command(['planning:data-plans:delete', '--dataPlanId=test'])
+    .catch('data.global.clientId should be string')
+    .it('returns a validation error if config file has invalid JSON');
 
   test
     .stub(JSONFileSync.prototype, 'read', () =>

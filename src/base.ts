@@ -1,4 +1,6 @@
 import Command, { flags } from '@oclif/command';
+import Ajv from 'ajv';
+import { mpConfigSchema } from '@mparticle/mp-config-json-schema';
 import { Input } from '@oclif/parser';
 import { JSONFileSync } from './utils/JSONFileSync';
 import mPConfig from './utils/mPConfig';
@@ -108,6 +110,15 @@ export default abstract class Base extends Command {
           this.error('Cannot read config file: ' + config);
         }
       }
+    }
+
+    const ajv = new Ajv();
+    const valid = ajv.validate(mpConfigSchema, configObject);
+
+    if (!valid) {
+      this.log('Invalid Schema in Config file');
+      this._debugLog('AJV Errors', ajv.errors);
+      this.error(ajv.errorsText());
     }
 
     this.mPConfig = new mPConfig(configObject);
