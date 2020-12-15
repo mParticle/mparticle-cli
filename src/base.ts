@@ -8,6 +8,7 @@ import {
   AccessCredentials,
   DataPlanService,
 } from '@mparticle/data-planning-node';
+import { cli } from 'cli-ux';
 
 export default abstract class Base extends Command {
   mPConfig = new mPConfig();
@@ -76,6 +77,23 @@ export default abstract class Base extends Command {
         credentials,
       });
       this.error(error.message);
+    }
+  }
+
+  writeOutfile(outFile: string, data: { [key: string]: any }) {
+    try {
+      cli.action.start(`Writing to ${outFile}`);
+      const writer = new JSONFileSync(outFile);
+      writer.write(data);
+    } catch (error) {
+      this._debugLog('Cannot save file', {
+        error,
+        response: {
+          outFile,
+          data,
+        },
+      });
+      this.error(`Cannot write output to ${outFile}`);
     }
   }
 
