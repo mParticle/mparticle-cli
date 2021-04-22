@@ -135,16 +135,6 @@ describe('planning:data-plan-versions:fetch', () => {
     });
 
   test
-    .stdout()
-    .command([
-      'planning:data-plan-versions:fetch',
-      '--dataPlanId=foo',
-      '--versionNumber=3',
-    ])
-    .catch('Missing API Credentials')
-    .it('returns an error if credentials are missing');
-
-  test
     .stub(JSONFileSync.prototype, 'read', () =>
       JSON.stringify({
         global: {

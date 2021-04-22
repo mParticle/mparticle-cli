@@ -76,6 +76,16 @@ describe('planning:events:validate', () => {
         JSON.stringify(expectedResults, null, 4).trim()
       );
     });
+
+  test
+    .stdout()
+    .command([
+      'planning:events:validate',
+      '--event=' + JSON.stringify(minifiedEvent),
+      '--dataPlanVersion=' + JSON.stringify(sampleVersion),
+    ])
+    .it('validates a local event without credentials');
+
   test
     .stdout()
     .command([

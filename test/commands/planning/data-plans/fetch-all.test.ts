@@ -119,12 +119,6 @@ describe('planning:data-plans:fetch-all', () => {
     });
 
   test
-    .stdout()
-    .command(['planning:data-plans:fetch-all'])
-    .catch('Missing API Credentials')
-    .it('returns an error if credentials are missing');
-
-  test
     .stub(JSONFileSync.prototype, 'read', () =>
       JSON.stringify({
         global: {

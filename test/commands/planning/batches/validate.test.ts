@@ -86,6 +86,15 @@ describe('planning:batches:validate', () => {
     .stdout()
     .command([
       'planning:batches:validate',
+      '--batch=' + JSON.stringify(sampleBatch),
+      '--dataPlanVersion=' + JSON.stringify(sampleVersion),
+    ])
+    .it('validates a local event without credentials');
+
+  test
+    .stdout()
+    .command([
+      'planning:batches:validate',
       '--workspaceId=8900',
       '--clientId=client',
       '--clientSecret=secret',

@@ -145,10 +145,6 @@ export default abstract class Base extends Command {
     const clientId = flags.clientId ?? this.mPConfig?.clientId;
     const clientSecret = flags.clientSecret ?? this.mPConfig.clientSecret;
 
-    if (!workspaceId || !clientId || !clientSecret) {
-      this.error('Missing API Credentials');
-    }
-
     this.credentials = {
       workspaceId,
       clientId,

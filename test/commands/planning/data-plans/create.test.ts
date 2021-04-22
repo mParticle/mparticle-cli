@@ -86,15 +86,6 @@ describe('planning:data-plans:create', () => {
     );
 
   test
-    .stdout()
-    .command([
-      'planning:data-plans:create',
-      '--dataPlan=' + JSON.stringify(sampleDataPlan),
-    ])
-    .catch('Missing API Credentials')
-    .it('returns an error if credentials are missing');
-
-  test
     .stub(JSONFileSync.prototype, 'read', () =>
       JSON.stringify({
         global: {},

@@ -90,16 +90,6 @@ describe('planning:data-plans:update', () => {
     );
 
   test
-    .stdout()
-    .command([
-      'planning:data-plans:update',
-      '--dataPlanId=test',
-      '--dataPlan=' + JSON.stringify(updatedDataPlan),
-    ])
-    .catch('Missing API Credentials')
-    .it('returns an error if credentials are missing');
-
-  test
     .stub(JSONFileSync.prototype, 'read', () =>
       JSON.stringify({
         global: {

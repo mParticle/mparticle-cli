@@ -105,16 +105,6 @@ describe('planning:data-plan-versions:delete', () => {
     );
 
   test
-    .stdout()
-    .command([
-      'planning:data-plan-versions:delete',
-      '--dataPlanId=test',
-      '--versionNumber=5',
-    ])
-    .catch('Missing API Credentials')
-    .it('returns an error if credentials are missing');
-
-  test
     .stub(JSONFileSync.prototype, 'read', () =>
       JSON.stringify({
         global: {
