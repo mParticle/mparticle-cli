@@ -145,7 +145,7 @@ EXAMPLES
   $ mp planning:batches:validate --batch=[BATCH] --dataPlanVersion=[DATA_PLAN_VERSION]
   $ mp planning:batches:validate --batchFile=/path/to/batch --dataPlanFile=/path/to/dataplan 
   --versionNumber=[VERSION_NUMBER]
-  $ mp planning:batches:validate --batchFile=/path/to/batch --dataPlanVersion=/path/to/dataplanversion
+  $ mp planning:batches:validate --batchFile=/path/to/batch --dataPlanVersionFile=/path/to/dataplanversion
 ```
 
 _See code: [src/commands/planning/batches/validate.ts](https://github.com/mParticle/mparticle-cli/blob/v1.0.7/src/commands/planning/batches/validate.ts)_
