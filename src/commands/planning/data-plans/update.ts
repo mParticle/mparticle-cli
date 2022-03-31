@@ -61,7 +61,7 @@ export default class DataPlanUpdate extends Base {
 
     const dataPlanService = this.getDataPlanService(this.credentials);
 
-    const message = 'Upadting Data Plan';
+    const message = 'Updating Data Plan';
 
     cli.action.start(message);
 
