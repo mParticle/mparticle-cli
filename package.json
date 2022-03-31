@@ -9,7 +9,7 @@
   "bugs": "https://github.com/mParticle/mparticle-cli/issues",
   "dependencies": {
     "@mparticle/data-planning-models": "0.1.0-alpha.0",
-    "@mparticle/data-planning-node": "1.0.2",
+    "@mparticle/data-planning-node": "1.0.3",
     "@mparticle/event-models": "^1.1.0-alpha.0",
     "@mparticle/model-translation": "0.0.2-alpha.0",
     "@mparticle/mp-config-json-schema": "0.0.1",
